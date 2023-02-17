@@ -1,6 +1,12 @@
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+import { EffectComposer } from 'three/examples/jsm//postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 export const shaderSky = () => {
     // 顶点着色
@@ -27,6 +33,9 @@ export const shaderSky = () => {
       bottomColor: { value: new THREE.Color('aliceblue') },
       offset: { value: 400 },
       exponent: { value: 0.6 },
+      map:{ 
+        encoding: THREE.sRGBEncoding
+      }
     };
     const skyGeo = new THREE.SphereGeometry(4000, 32, 15);
     const skyMat = new THREE.ShaderMaterial({
@@ -35,6 +44,7 @@ export const shaderSky = () => {
       fragmentShader: fragmentShader,
       side: THREE.BackSide,
     });
+    
     return new THREE.Mesh(skyGeo, skyMat)
 }
 
@@ -42,7 +52,7 @@ export const shaderSky = () => {
 export const floorPlane = (url:any) => {
     // 地面
     const gt = new THREE.TextureLoader().load(url);
-    const gg = new THREE.CircleGeometry(700, 700);
+    const gg = new THREE.CircleGeometry(4000, 4000);
     const gm = new THREE.MeshPhongMaterial({ color: 0xffffff, map: gt, side: THREE.DoubleSide });
     const ground:any = new THREE.Mesh(gg, gm);
     ground.rotation.x = -Math.PI / 2;
@@ -61,7 +71,7 @@ export function setControls(camera:any, renderer:any) {
     controls.minZoom = 1000;
     controls.minDistance = 25;
     controls.maxDistance = 250;
-    controls.maxPolarAngle = Math.PI / 2.5;
+    controls.maxPolarAngle = Math.PI / 2;
     return controls
 }
 
@@ -108,4 +118,40 @@ export const loadFBX = (scene:any,url:string='model/西宿舍楼/xisushelou02.FB
     })
 }
 
+export function setOutLinePass(scene:any,camera:any,renderer:any,threeDom:any, ModelList:Array<any> = []){
+    
+    //创建效果组合器对象，可以在该对象上添加后期处理通道，通过配置该对象，使它可以渲染我们的场景，并应用额外的后期处理步骤，在render循环中，使用EffectComposer渲染场景、应用通道，并输出结果。
+    const Composer = new EffectComposer(renderer)
+    Composer.setSize(threeDom.offsetWidth, threeDom.offsetHeight);
+    Composer.setPixelRatio( window.devicePixelRatio * 2)
+
+    // 多场景渲染
+    const renderPass = new RenderPass(scene, camera)
+    Composer.addPass(renderPass);
+
+    // 添加 GammaCorrectionShader 颜色校正器
+    const effectColorSpaceConversion = new ShaderPass( GammaCorrectionShader );
+    Composer.addPass( effectColorSpaceConversion );
+
+    //锯齿处理
+    const fxaaPass = new ShaderPass(FXAAShader);
+    const pixelRatio = renderer.getPixelRatio();
+    fxaaPass.material.uniforms['resolution'].value.x = 1 / (threeDom.offsetWidth * pixelRatio);
+    fxaaPass.material.uniforms['resolution'].value.y = 1 / (threeDom.offsetHeight * pixelRatio);
+
+    // 需要选中的物体对象, 传入需要边界线进行高亮处理的对象
+    const outlinePass:any = new OutlinePass(new THREE.Vector2(threeDom.offsetWidth, threeDom.offsetHeight), scene, camera, ModelList);
+    outlinePass.renderToScreen = true;
+    outlinePass.edgeStrength = 4 //粗
+    outlinePass.edgeGlow = 2 //发光
+    outlinePass.edgeThickness = 2.5 //光晕粗
+    outlinePass.pulsePeriod = 1 //闪烁
+    outlinePass.usePatternTexture = false //是否使用贴图
+    outlinePass.visibleEdgeColor.set('#4169E1'); // 设置显示的颜色
+    outlinePass.hiddenEdgeColor.set('#F0F8FF'); // 设置隐藏的颜色
+    // 眩光通道outLinePass插入到composer
+    Composer.addPass(outlinePass)
+
+    return { Composer , outlinePass }
+}
 
