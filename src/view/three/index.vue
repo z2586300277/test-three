@@ -6,7 +6,7 @@
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
 import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass} from './threeApi'
-import { loadTiles, TilesUpadate, getWebGLMouse , clickIntersect}  from './tilesApi'
+import { loadTiles, TilesUpadate, getWebGLMouse , clickIntersect, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
 const threeDom = ref()
@@ -20,9 +20,11 @@ function modelClick (e: any) {
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
-        const { object } = intersect
-        viewer.outlinePass.selectedObjects = [object]
+        const { object, face } = intersect
+        // viewer.outlinePass.selectedObjects = [object]
         // console.log(viewer)
+        const tilesBatch = TilesBatchTable(face, object)
+        if ( object && tilesBatch ) object.traverse( (c:any) => c.isMesh && (c.material.uniforms.highlightedBatchId.value = tilesBatch.hoveredBatchid))
     }
 }
 
@@ -68,11 +70,14 @@ function initScene(DOM:any) {
     const floor = floorPlane('http://guangfu/floor.jpg')
     scene.add(floor)
 
-    loadFBX(scene,'http://guangfu/tileset.FBX')
+    const GUI = createGUI(THREE,scene,camera,controls)
+
+    loadFBX(scene,'http://guangfu/tileset.FBX', GUI)
+    loadFBX(scene,'http://guangfu/aroundBuilding.FBX', GUI)
+    // loadFBX(scene,'http://guangfu/y/shexian.FBX', GUI)
 
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
-    const GUI = createGUI(THREE,scene,camera,controls)
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 

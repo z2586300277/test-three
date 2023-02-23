@@ -45,7 +45,7 @@ export const loadTiles = (camera:any, renderer:any, scene:any, url:string) => {
           
             if ( c.isMesh ) {
                
-                // c.material = new ShaderMaterial( batchIdHighlightShaderMixin( ShaderLib.standard ) );
+                c.material = new ShaderMaterial( batchIdHighlightShaderMixin( ShaderLib.standard, c.material.map) );
 
             }
         });
@@ -81,25 +81,20 @@ export function TilesBatchTable(face:any,object:any) {
         const name =  batchData[hoveredBatchid];
         const g = object.geometry;
         const p = g.getAttribute('position');
-        const _batchid_array = batchidAttr.array;
-
-        for (let index = 0; index < _batchid_array.length; index++) {
-            const _batchid = batchidAttr.getX(index);
-            if (_batchid === hoveredBatchid) {
-
-                const pIndex = index;
-                const targetP = new THREE.Vector3(p.getX(pIndex), p.getY(pIndex), p.getZ(pIndex));
-                targetP.applyMatrix4(object.matrixWorld);
+    
+        const targetP = new THREE.Vector3(p.getX(hoveredBatchid), p.getY(hoveredBatchid), p.getZ(hoveredBatchid));
+        // targetP.applyMatrix4(object.matrixWorld);
+        console.log(object )
+        return  { name , hoveredBatchid, targetP};
                 
-                return  { name , hoveredBatchid, targetP};
-            }
-        }
+            
+        
         
     }
     else return null;
 }
 
-export function batchIdHighlightShaderMixin( shader:any ) {
+export function batchIdHighlightShaderMixin( shader:any, map: any) {
 
 	const newShader = { ...shader };
 	newShader.uniforms = {
@@ -138,7 +133,7 @@ export function batchIdHighlightShaderMixin( shader:any ) {
 				vec4( diffuse, opacity );
 			`
 		);
-
+    // console.log(newShader)
 	return newShader;
 
 }

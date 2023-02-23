@@ -70,12 +70,12 @@ export function setControls(camera:any, renderer:any) {
     controls.dampingFactor = 0.1;
     controls.minZoom = 1000;
     controls.minDistance = 25;
-    controls.maxDistance = 250;
+    // controls.maxDistance = 500;
     controls.maxPolarAngle = Math.PI / 2;
     return controls
 }
 
-export const loadFBX = (scene:any,url:string='model/西宿舍楼/xisushelou02.FBX') => {
+export const loadFBX = (scene:any,url:string='model/西宿舍楼/xisushelou02.FBX', GUI:any) => {
     //加载器
     const loader = new FBXLoader();
    
@@ -113,6 +113,9 @@ export const loadFBX = (scene:any,url:string='model/西宿舍楼/xisushelou02.FB
 
         object3d.rotation.y = (-180 * Math.PI) / 180;
         object3d.position.set(61.59, -6.1, -58.5);
+        const folder = GUI.addFolder('模型[' + Date.now() + ']');
+        ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
+        ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
         scene.add(object3d)
 
     })
