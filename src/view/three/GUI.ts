@@ -123,7 +123,7 @@ export function createGUI(THREE: any, scene: any, camera: any, controls:any) {
     BasicCamera.add(camera, 'fov').min(0).max(200).name('相机视锥体垂直视野角度')
     BasicCamera.add(camera, 'near').min(0).max(100).name('相机视锥体近端')
     BasicCamera.add(camera, 'far').min(1000).max(10000000).name('相机视锥体远端');
-    ['x', 'y', 'z'].forEach(i => BasicCamera.add(camera.position, i).min(-100).max(100).name(i + '轴坐标'));
+    ['x', 'y', 'z'].forEach(i => BasicCamera.add(camera.position, i).min(-3000).max(3000).name(i + '轴坐标'));
     BasicCamera.add({ fn: () => camera.updateProjectionMatrix() }, 'fn').name('更新相机矩阵');
    
 
