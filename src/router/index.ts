@@ -4,11 +4,15 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '',
-    redirect: '/three',
+    redirect: '/pipe',
   },
   {
     path: '/three',
     component: () => import('../view/three/index.vue')
+  },
+  {
+    path: '/pipe',
+    component: () => import('../view/pipe/index.vue')
   }
 ]
 

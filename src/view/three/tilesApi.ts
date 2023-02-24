@@ -95,30 +95,3 @@ export function TilesBatchTable(face:any,object:any) {
     else return null;
 }
 
-
-// 鼠标位置
-export function getWebGLMouse(event:any){
-    //获取鼠标位置 转化webgl 坐标
-    return new THREE.Vector2(
-        (event.offsetX / event.target.clientWidth) * 2 - 1,
-        -(event.offsetY /  event.target.clientHeight) * 2 + 1
-    )
-}
-
-// 鼠标射线
-export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
-
-     //创建射线
-     const raycaster = new THREE.Raycaster()
-
-     //设置射线的起点
-     raycaster.setFromCamera(mouse, CAMERA)
-
-     //获取射线碰撞的物体
-     const intersects = raycaster.intersectObjects(SCENE.children)
-
-     //如果有碰撞 //获取碰撞的第一个物体
-     if(intersects.length > 0)return  intersects[0]
-
-     else return null;
-}

@@ -76,7 +76,7 @@ export function setControls(camera: any, renderer: any) {
     return controls
 }
 
-export const loadFBX = (scene: any, url: string = 'model/西宿舍楼/xisushelou02.FBX', GUI: any) => {
+export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', callback: any) => {
     //加载器
     const loader = new FBXLoader();
 
@@ -112,12 +112,7 @@ export const loadFBX = (scene: any, url: string = 'model/西宿舍楼/xisushelou
             }
         })
 
-        object3d.rotation.y = (-180 * Math.PI) / 180;
-        object3d.position.set(61.59, -6.1, -58.5);
-        const folder = GUI.addFolder('模型[' + Date.now() + ']');
-        ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
-        ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
-        scene.add(object3d)
+        callback(object3d)
 
     })
 }
@@ -176,3 +171,31 @@ export function setStats(){
     return stats
 }
 
+
+
+// 鼠标位置
+export function getWebGLMouse(event:any){
+    //获取鼠标位置 转化webgl 坐标
+    return new THREE.Vector2(
+        (event.offsetX / event.target.clientWidth) * 2 - 1,
+        -(event.offsetY /  event.target.clientHeight) * 2 + 1
+    )
+}
+
+// 鼠标射线
+export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
+
+     //创建射线
+     const raycaster = new THREE.Raycaster()
+
+     //设置射线的起点
+     raycaster.setFromCamera(mouse, CAMERA)
+
+     //获取射线碰撞的物体
+     const intersects = raycaster.intersectObjects(SCENE.children)
+
+     //如果有碰撞 //获取碰撞的第一个物体
+     if(intersects.length > 0)return  intersects[0]
+
+     else return null;
+}
