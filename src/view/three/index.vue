@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass} from './threeApi'
+import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats} from './threeApi'
 import { loadTiles, TilesUpadate, getWebGLMouse , clickIntersect, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
@@ -74,18 +74,18 @@ function initScene(DOM:any) {
 
     loadFBX(scene,'http://guangfu/tileset.FBX', GUI)
     loadFBX(scene,'http://guangfu/aroundBuilding.FBX', GUI)
-    // loadFBX(scene,'http://guangfu/y/shexian.FBX', GUI)
 
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 
+    const stats = setStats()
 
     // 创建一个时钟对象Clock
     const clock = new THREE.Clock();
     // 设置渲染频率为30FBS，也就是每秒调用渲染器render方法大约30次
-    const FPS = 45;
+    const FPS = 144;
     const renderT = 1 / FPS; //单位秒  间隔多长时间渲染渲染一次
     // 声明一个变量表示render()函数被多次调用累积时间
     // 如果执行一次renderer.render，timeS重新置0
@@ -101,6 +101,7 @@ function initScene(DOM:any) {
             
             /* 渲染 */
             tilesRenderer && TilesUpadate(tilesRenderer)
+            stats && stats.update()
             if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
             else  renderer.render(scene, camera)
             /* 渲染 */

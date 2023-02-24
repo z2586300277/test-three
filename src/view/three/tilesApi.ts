@@ -6,6 +6,7 @@ import {
     ShaderMaterial,
     ShaderLib
 } from 'three'
+import { batchIdHighlightShaderMixin } from './glsl'
 
 let box = new THREE.Box3();
 let sphere = new THREE.Sphere();
@@ -45,7 +46,7 @@ export const loadTiles = (camera:any, renderer:any, scene:any, url:string) => {
           
             if ( c.isMesh ) {
                
-                c.material = new ShaderMaterial( batchIdHighlightShaderMixin( ShaderLib.standard, c.material.map) );
+                c.material = batchIdHighlightShaderMixin(c.material);
 
             }
         });
@@ -84,7 +85,7 @@ export function TilesBatchTable(face:any,object:any) {
     
         const targetP = new THREE.Vector3(p.getX(hoveredBatchid), p.getY(hoveredBatchid), p.getZ(hoveredBatchid));
         // targetP.applyMatrix4(object.matrixWorld);
-        console.log(object )
+        console.log(object.material.vertexShader)
         return  { name , hoveredBatchid, targetP};
                 
             
@@ -94,49 +95,6 @@ export function TilesBatchTable(face:any,object:any) {
     else return null;
 }
 
-export function batchIdHighlightShaderMixin( shader:any, map: any) {
-
-	const newShader = { ...shader };
-	newShader.uniforms = {
-		highlightedBatchId: { value: - 1 },
-		highlightColor: { value: new Color( 0xFFC107 ).convertSRGBToLinear() },
-		...UniformsUtils.clone( shader.uniforms ),
-	};
-	newShader.extensions = {
-		derivatives: true,
-	};
-	newShader.lights = true;
-	newShader.vertexShader =
-		`
-			attribute float _batchid;
-			varying float batchid;
-		` +
-		newShader.vertexShader.replace(
-			/#include <uv_vertex>/,
-			`
-			#include <uv_vertex>
-			batchid = _batchid;
-			`
-		);
-	newShader.fragmentShader =
-		`
-			varying float batchid;
-			uniform float highlightedBatchId;
-			uniform vec3 highlightColor;
-		` +
-		newShader.fragmentShader.replace(
-			/vec4 diffuseColor = vec4\( diffuse, opacity \);/,
-			`
-			vec4 diffuseColor =
-				abs( batchid - highlightedBatchId ) < 0.5 ?
-				vec4( highlightColor, opacity ) :
-				vec4( diffuse, opacity );
-			`
-		);
-    // console.log(newShader)
-	return newShader;
-
-}
 
 // 鼠标位置
 export function getWebGLMouse(event:any){
