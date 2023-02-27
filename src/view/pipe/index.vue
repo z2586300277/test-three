@@ -4,7 +4,6 @@
         <el-button @click="clear">清除点</el-button>
         <el-button @click="setPipe">生成管道</el-button>
         <el-button @click="clearPipe">清除管道</el-button>
-        <el-button @click="clipPlane">生成切面</el-button>
     </div>
 </template>
 
@@ -20,6 +19,7 @@ let viewer:any;
 let pointList:any = []
 let cubeArr:Array<any> = []
 let PIPE:any
+let clipAnimation:any = null
 
 function clear() {
     cubeArr.map((i:any) => viewer.scene.remove(i))
@@ -34,9 +34,20 @@ function setPipe() {
     0.85
     ) 
     viewer.scene.add(PIPE)
-    console.log(PIPE)
     viewer.outlinePass.selectedObjects = [PIPE]
-    
+
+    // 管道动画
+    const { clipFace_arr , max, min} = getModelBox(PIPE, viewer.scene);
+  
+    const width = max.z -min.z
+    const end = clipFace_arr[5]
+    clipFace_arr[5].constant -= width
+    // clipFace_arr.map((a:any, k:number) =>  viewer.GUI.add(a, 'constant').min(-5000).max(5000).name('切面位置'+ ['y','y','x','x','z','z'][k]))
+    clipAnimation = () => {
+      clipFace_arr[5].constant += 0.3
+      if (clipFace_arr[5].constant >= end) clipAnimation = null
+    }
+
 }
 
 function clearPipe() {
@@ -44,27 +55,6 @@ function clearPipe() {
     PIPE = null
 }
 
-function clipPlane() {
-        // 面裁切
-    // Plane作为元素创建数组，Plane的方向法向量、位置根据需要随意定义
-    const plane =   new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
-    console.log(plane);
-    ['x', 'y', 'z'].forEach(i => viewer.GUI.add(plane.normal, i).min(-500).max(500).name(i + '切面法线轴坐标'));
-    viewer.GUI.add(plane, 'constant').min(-500).max(500).name('切面位置');
-    var PlaneArr = [
-        //创建一个垂直x轴的平面，方向沿着x轴负方向，沿着x轴正方向平移20,
-        plane
-      ,
-    ];
-    viewer.renderer.localClippingEnabled = true;
-    viewer.renderer.clippingPlanes = PlaneArr;
-
-    
-    // 通过PlaneHelper辅助可视化显示剪裁平面Plane
-    var helper = new THREE.PlaneHelper(PlaneArr[0], 300, 0xffff00);
-    viewer.scene.add(helper);
-
-}
 
 onMounted(() => {
   viewer = initScene(threeDom.value)
@@ -75,10 +65,6 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
-        const box= getModelBox(object, viewer.scene);
-        console.log(box);
-      
-        return viewer.outlinePass.selectedObjects = [object]
         const g = new THREE.BoxGeometry(10,10,10)
         const m = new THREE.MeshBasicMaterial({ color: 'red'})
         const mesh = new THREE.Mesh(g , m)
@@ -113,6 +99,7 @@ function initScene(DOM:any) {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.setClearColor( 0x000000 )
     renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.localClippingEnabled = true;
     DOM.appendChild(renderer.domElement)
     
 
@@ -153,6 +140,7 @@ function initScene(DOM:any) {
         PIPE && (PIPE.material.map.offset.x -= 0.01)
         if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
         else  renderer.render(scene, camera)
+        clipAnimation && clipAnimation()
         /* 渲染 */
         requestAnimationFrame(render)
     } 

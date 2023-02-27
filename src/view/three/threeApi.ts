@@ -332,6 +332,27 @@ export function pointsGeometry(vertices:any) {
     return points
 }
 
+export function simplePointsToFace(arr:any,name:any, color:any) {
+
+    const faceGroup = arr.map((i:any,k:any, o:any) => (k >= 2) ? [o[0], o[k - 1], o[k]]:false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[]).reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+
+    const geometry = new THREE.BufferGeometry();
+
+    // 因为在两个三角面片里，这两个顶点都需要被用到。
+    const vertices = new Float32Array(faceGroup);
+
+    // itemSize = 3 因为每个顶点都是一个三元组。
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+
+    const material = new THREE.MeshBasicMaterial( { side:THREE.DoubleSide, color: color , transparent: true, opacity: 0.6} );
+    
+    const mesh = new THREE.Mesh( geometry, material );
+
+    mesh.name = name;
+
+    return mesh
+}
+
 // 获取模型包围盒子
  /*
        6----7
@@ -343,6 +364,11 @@ export function pointsGeometry(vertices:any) {
      0----1
   */
 export function getModelBox(mesh:any ,scene:any = null) {
+
+    const position = new THREE.Vector3();
+    mesh.getWorldPosition(position);
+
+    // 点可视化
     let { max, min }:any = new THREE.Box3().setFromObject(mesh);
     let point_max =new THREE.Vector3(max.x,max.y,max.z);
     let point_max_right =new THREE.Vector3(min.x,max.y,max.z);
@@ -354,21 +380,45 @@ export function getModelBox(mesh:any ,scene:any = null) {
     let point_min_left =new THREE.Vector3(max.x,min.y,min.z);
     let ponit_arr = [point_max, point_max_right, point_max_behind, point_max_under, point_min, point_min_front, point_min_top, point_min_left]
 
+    // 可视化面
+    const T = simplePointsToFace([ponit_arr[0], ponit_arr[1], ponit_arr[5], ponit_arr[2]], 'top_plane', 'red');
+    const B = simplePointsToFace([ponit_arr[3], ponit_arr[6], ponit_arr[4], ponit_arr[7]], 'bottom_plane', 'yellow');
+    const L = simplePointsToFace([ponit_arr[1], ponit_arr[6], ponit_arr[4], ponit_arr[5]], 'left_plane', 'blue');
+    const R = simplePointsToFace([ponit_arr[0], ponit_arr[3], ponit_arr[7], ponit_arr[2]], 'right_plane', 'green');
+    const F = simplePointsToFace([ponit_arr[1], ponit_arr[0], ponit_arr[3], ponit_arr[6]], 'front_plane', 'DarkSlateGray');
+    const K = simplePointsToFace([ponit_arr[5], ponit_arr[2], ponit_arr[7], ponit_arr[4]], 'back_plane', 'Indigo');
+    const plane_arr =  [T,B,L,R,F,K]
+ 
+    //刨切面
+    const clipFace_arr = []
+    clipFace_arr[0] = new THREE.Plane(new THREE.Vector3(0, -1, 0),max.y); // 上
+    clipFace_arr[1] = new THREE.Plane(new THREE.Vector3(0, 1, 0), min.y); // 下
+    clipFace_arr[2] = new THREE.Plane(new THREE.Vector3(1, 0, 0), min.x); // 左
+    clipFace_arr[3] = new THREE.Plane(new THREE.Vector3(-1, 0, 0),max.x); // 右
+    clipFace_arr[4] = new THREE.Plane(new THREE.Vector3(0, 0, -1),max.z); // 前
+    clipFace_arr[5] = new THREE.Plane(new THREE.Vector3(0, 0, 1), -min.z); // 后    
 
-    console.log(THREE.Face3)
+    // 材质 克隆
+    if (Array.isArray(mesh.material)) mesh.material =  mesh.material.map((i:any) => i.clone())
+    else mesh.material = mesh.material.clone();
+
+    mesh.material.clippingPlanes = clipFace_arr
+  
 
     // 可视化开发
     if( scene) {
-        ponit_arr.map((i:any) => {
-            const g = new THREE.BoxGeometry(10,10,10)
-            const m = new THREE.MeshBasicMaterial({ color: 'red'})
-            const c = new THREE.Mesh(g , m)
-            c.position.set(...i)
-            scene.add(c)  
-        })
-
-        
+        // plane_arr.forEach((i:any) => scene.add(i))
+        // ponit_arr.map((i:any) => {
+        //     const g = new THREE.BoxGeometry(10,10,10)
+        //     const m = new THREE.MeshBasicMaterial({ color: 'red'})
+        //     const c = new THREE.Mesh(g , m)
+        //     c.position.set(...i)
+        //     scene.add(c)  
+        // })
+        // 通过PlaneHelper辅助可视化显示剪裁平面Plane
+        // let helper = new THREE.PlaneHelper(a, 300, 0xffff00);
+        // scene.add(helper);
     }
     
-    return  { max, min }
+    return  { max, min , plane_arr, ponit_arr , clipFace_arr , position}
 }
