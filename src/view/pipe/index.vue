@@ -11,7 +11,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,} from '../three/threeApi'
+import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { createTube , worldP} from './pipe' 
 
@@ -75,7 +75,10 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
-        
+        const box= getModelBox(object, viewer.scene);
+        console.log(box);
+      
+        return viewer.outlinePass.selectedObjects = [object]
         const g = new THREE.BoxGeometry(10,10,10)
         const m = new THREE.MeshBasicMaterial({ color: 'red'})
         const mesh = new THREE.Mesh(g , m)

@@ -3,19 +3,21 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted, onUnmounted,watch,watchEffect , reactive} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,} from './threeApi'
+import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,formatVertices, lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry} from './threeApi'
 import { loadTiles, TilesUpadate, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
 const threeDom = ref()
 let viewer:any;
+let point_arr:any = ref([])
 
 onMounted(() => {
   viewer = initScene(threeDom.value)
 })
 
+// 模型选中
 function modelClick (e: any) {
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
@@ -25,6 +27,31 @@ function modelClick (e: any) {
         // console.log(viewer)
         const tilesBatch = TilesBatchTable(face, object)
         if ( object && tilesBatch ) object.traverse( (c:any) => c.isMesh && (c.material.uniforms.highlightedBatchId.value = tilesBatch.hoveredBatchid))
+    }
+}
+
+// 绘制点线面
+watch(point_arr.value,() => {
+
+    const arr = formatVertices(point_arr.value)
+  
+    const points = pointsGeometry(arr)
+    const line = lineGeometry(arr)
+    const {indexGroup, faceGroup, uvGroup } = multShapeGroup(point_arr.value, 'indexFace', viewer.scene)
+    const area = multShapePlaneGeometry(faceGroup,indexGroup, uvGroup)
+    area.position.y += 3
+
+    viewer.scene.add(points)
+    viewer.scene.add(line)
+    viewer.scene.add(area)
+})
+
+function clickDraw(e: any) {
+    const webGLMosue = getWebGLMouse(e)
+    const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
+    if(intersect) {
+        const { object, face, point} = intersect
+        point_arr.value.push(point)
     }
 }
 

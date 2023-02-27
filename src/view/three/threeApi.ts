@@ -12,7 +12,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 export const shaderSky = () => {
     // 顶点着色
     const vertexShader = `
-    varying vec3 vWorldPosition;
+    letying vec3 vWorldPosition;
     void main() {
       vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
       vWorldPosition = worldPosition.xyz;
@@ -24,7 +24,7 @@ export const shaderSky = () => {
     uniform vec3 bottomColor;
     uniform float offset;
     uniform float exponent;
-    varying vec3 vWorldPosition;
+    letying vec3 vWorldPosition;
     void main() {
         float h = normalize( vWorldPosition + offset ).y;
         gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 );
@@ -198,4 +198,177 @@ export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
      if(intersects.length > 0)return  intersects[0]
 
      else return null;
+}
+
+// 顶点格式化
+export const  formatVertices = (value:[]) => value.reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+
+// 线物体
+export function lineGeometry(arr:any) {
+
+    const geometry = new THREE.BufferGeometry();
+
+    const vertices = new Float32Array(arr);
+
+    // itemSize = 3 因为每个顶点都是一个三元组。
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+
+    const material = new THREE.LineBasicMaterial( {color: 'red', lineWidth: 10 } );
+    
+    const mesh = new THREE.Line( geometry, material );
+
+    return mesh
+}
+
+// 多变形顶点组算法处理  生成面组
+export function multShapeGroup(pList:any, way:any = 'indexFace' || 'pointFace', scene:any = null) {
+   
+    // 直接格式化成顶点组
+    if (way === 'pointFace') {
+
+        const faceGroup = pList.map((i:any,k:any, o:any) => (k >= 2) ? [o[0], o[k - 1], o[k]]:false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[]).reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+        
+        return {faceGroup}
+    }
+
+    // 根据索引设置面可以重复使用点
+    else {
+        
+        const indexGroup = pList.map((i:any,k:any, o:any) => (k >= 2) ? [0, k-1, k] :false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[])
+
+        const faceGroup = pList.reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+
+        const uvMaxMin = pList.reduce((p:any, i:any) => ({x: [...p['x'],i['x']],y: [...p['y'],i['y']],z: [...p['z'],i['z']]}), {x: [], y:[], z: []})
+        
+        // vu 点计算 二维面
+        let Maxp = new THREE.Vector3(Math.max(...uvMaxMin.x), Math.max(...uvMaxMin.y), Math.max(...uvMaxMin.z))  // 最大点
+        let Minp = new THREE.Vector3(Math.min(...uvMaxMin.x), Math.min(...uvMaxMin.y), Math.min(...uvMaxMin.z))  // 最小点
+        let Maxc = new THREE.Vector3(Maxp.x, Maxp.y , Minp.z) // 镜像点1
+        let Minc = new THREE.Vector3(Minp.x, Minp.y , Maxp.z) // 镜像点2
+        let W = Maxp.x  - Minp.x
+        let H = Maxp.z  - Minp.z
+        const L = W > H ? W : H  // 以最大为基准
+     
+        if(scene) {
+            const g = new THREE.BoxGeometry(10,10,10)
+            const m = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random()})
+            const mesh = new THREE.Mesh(g , m)
+            const a = mesh.clone()
+            const d = mesh.clone()
+            const e = mesh.clone()
+            a.position.set(...Maxp)
+            mesh.position.set(...Minp)
+            d.position.set(...Maxc)
+            e.position.set(...Minc)
+            scene.add(a)  
+            scene.add(mesh)  
+            scene.add(d)  
+            scene.add(e)  
+        }
+
+        const uvGroup = pList.map((i:any, k:any, o:any) => {
+            // return[(i.x - Minp.x) / W, (i.z - Minp.z) / H]
+            return [[0, 0], [0, 1], [1, 1], [1, 0]][k % 4] // 固定方式弃用
+        }).reduce((i:any, j:any) => [...i, ...j], []);
+
+        return { indexGroup , faceGroup , uvGroup}
+    }
+    
+}
+
+// 根据顶点组生成物体
+export  function multShapePlaneGeometry(faceGroup:any, indexGroup:any, uvGroup:any,textureMap:any = 'https://img0.baidu.com/it/u=981218435,2998857702&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1677603600&t=455d091ed3eb38bf61a72df4b1285a9d') {
+
+    const geometry = new THREE.BufferGeometry();
+
+    // 因为在两个三角面片里，这两个顶点都需要被用到。
+    const vertices = new Float32Array(faceGroup);
+
+    // itemSize = 3 因为每个顶点都是一个三元组。
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+
+    // 索引组 面
+    if(indexGroup) {
+
+        // 格式化索引面组
+        let indexs = new Uint16Array(indexGroup);
+
+        // 添加索引组
+        geometry.index = new THREE.BufferAttribute(indexs, 1)
+
+    }
+
+    // uv 是二维坐标相当于三维物体展开图
+    if(uvGroup) geometry.attributes.uv = new THREE.Float32BufferAttribute(  uvGroup, 2)
+
+    //导入纹理
+    const textureLoader = new THREE.TextureLoader()
+
+    //加载纹理图
+    const texture = textureLoader.load(textureMap)
+
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 2, 2 );
+
+    const material = new THREE.MeshBasicMaterial( { side:THREE.DoubleSide,map: texture , transparent: true, opacity: 0.8} );
+    
+    const mesh = new THREE.Mesh( geometry, material );
+
+    return mesh
+}
+ 
+// 点模型物体
+export function pointsGeometry(vertices:any) {
+
+    const geometry = new THREE.BufferGeometry();
+
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+    const material = new THREE.PointsMaterial( { color: 'red', size: 80 } );
+
+    const points = new THREE.Points( geometry, material );
+
+    return points
+}
+
+// 获取模型包围盒子
+ /*
+       6----7
+      /|   /|
+     2----3 |
+     | |  | |
+     | 4--|-5
+     |/   |/
+     0----1
+  */
+export function getModelBox(mesh:any ,scene:any = null) {
+    let { max, min }:any = new THREE.Box3().setFromObject(mesh);
+    let point_max =new THREE.Vector3(max.x,max.y,max.z);
+    let point_max_right =new THREE.Vector3(min.x,max.y,max.z);
+    let point_max_behind =new THREE.Vector3(max.x,max.y,min.z);
+    let point_max_under =new THREE.Vector3(max.x,min.y,max.z);
+    let point_min =new THREE.Vector3(min.x,min.y,min.z);
+    let point_min_front =new THREE.Vector3(min.x,max.y,min.z);
+    let point_min_top =new THREE.Vector3(min.x,min.y,max.z);
+    let point_min_left =new THREE.Vector3(max.x,min.y,min.z);
+    let ponit_arr = [point_max, point_max_right, point_max_behind, point_max_under, point_min, point_min_front, point_min_top, point_min_left]
+
+
+    console.log(THREE.Face3)
+
+    // 可视化开发
+    if( scene) {
+        ponit_arr.map((i:any) => {
+            const g = new THREE.BoxGeometry(10,10,10)
+            const m = new THREE.MeshBasicMaterial({ color: 'red'})
+            const c = new THREE.Mesh(g , m)
+            c.position.set(...i)
+            scene.add(c)  
+        })
+
+        
+    }
+    
+    return  { max, min }
 }
