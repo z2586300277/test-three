@@ -10,49 +10,62 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, floorPlane, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
-import { createTube , worldP} from './pipe' 
+import { worldP} from './pipe' 
 
 const threeDom = ref()
 let viewer:any;
 let pointList:any = []
 let cubeArr:Array<any> = []
 let PIPE:any
-let clipAnimation:any = null
+let PIPE_OPTION:any = {
+    clipWayName: '',
+    clipAnimation: null,
+    clipSpeed: 0.3,
+    pipeRadius: 5
+}
 
+// 清除点
 function clear() {
     cubeArr.map((i:any) => viewer.scene.remove(i))
     cubeArr = []
     pointList = []
 }
+// 清除管子
+function clearPipe() {
+    viewer.scene.remove(PIPE)
+    PIPE = null
+}
+
 
 function setPipe() {
     PIPE = createTube(
-    pointList,
-    'https://img0.baidu.com/it/u=712032368,526149248&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=889',
-    0.85
+        pointList,
+        'https://img0.baidu.com/it/u=2087560284,3492925789&fm=253&fmt=auto&app=138&f=JPEG?w=1023&h=500',
+        0.85,
+        PIPE_OPTION.pipeRadius
     ) 
     viewer.scene.add(PIPE)
     viewer.outlinePass.selectedObjects = [PIPE]
 
+    console.log(PIPE)
+
     // 管道动画
-    const { clipFace_arr , max, min} = getModelBox(PIPE, viewer.scene);
-  
-    const width = max.z -min.z
-    const end = clipFace_arr[5]
-    clipFace_arr[5].constant -= width
-    // clipFace_arr.map((a:any, k:number) =>  viewer.GUI.add(a, 'constant').min(-5000).max(5000).name('切面位置'+ ['y','y','x','x','z','z'][k]))
-    clipAnimation = () => {
-      clipFace_arr[5].constant += 0.3
-      if (clipFace_arr[5].constant >= end) clipAnimation = null
-    }
+    const {clipFace_Way }:any = getModelBox(PIPE);
+    
+    
+    viewer.GUI.add(PIPE_OPTION,'clipSpeed').min(0.01).max(5).name('动画播放速度')
+    viewer.GUI.add(PIPE_OPTION,'clipWayName',['y','_y','x','_x','z','_z']).name('动画播放方式').onChange((i:any) => {
+        clipFace_Way.reset()
+        clipFace_Way[i].clip.constant -= clipFace_Way[i].width
+        PIPE_OPTION.clipAnimation = () => {  
+            if (clipFace_Way[i].clip.constant + PIPE_OPTION.clipSpeed > clipFace_Way[i].end) PIPE_OPTION.clipAnimation = null
+            else clipFace_Way[i].clip.constant += PIPE_OPTION.clipSpeed
+        }
+     })
+     
 
-}
-
-function clearPipe() {
-    viewer.scene.remove(PIPE)
-    PIPE = null
 }
 
 
@@ -65,6 +78,7 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
+
         const g = new THREE.BoxGeometry(10,10,10)
         const m = new THREE.MeshBasicMaterial({ color: 'red'})
         const mesh = new THREE.Mesh(g , m)
@@ -97,7 +111,7 @@ function initScene(DOM:any) {
     renderer.setPixelRatio( window.devicePixelRatio * 2)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    renderer.setClearColor( 0x000000 )
+    renderer.setClearColor( 0xf5f5f5 )
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.localClippingEnabled = true;
     DOM.appendChild(renderer.domElement)
@@ -112,22 +126,25 @@ function initScene(DOM:any) {
     scene.add(axes)
 
     const GUI:any = createGUI(THREE,scene,camera,controls)
+    GUI.add(PIPE_OPTION,'pipeRadius').min(1).max(30).name('管子大小')
 
-    loadFBX('http://guangfu/pipe.FBX', (o:any) => {
+    // 模型加载
+    loadFBX('http://guangfu/chuankuayue.FBX', (o:any) => {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(o.position, i).min(-500).max(500).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(o.scale, i).min(0).max(10).name(i + '缩放'));
         scene.add(o)
     })
-  
+    
+    // 后期制作
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 
+    // 帧率显示
     const stats = setStats()
 
     // 世界坐标
     worldP(scene)
-
-
+    
 
     // 开启模型对象的局部剪裁平面功能
     // 如果不设置为true，设置剪裁平面的模型不会被剪裁
@@ -138,9 +155,9 @@ function initScene(DOM:any) {
         /* 渲染 */
         stats && stats.update()
         PIPE && (PIPE.material.map.offset.x -= 0.01)
+        PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation()
         if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
         else  renderer.render(scene, camera)
-        clipAnimation && clipAnimation()
         /* 渲染 */
         requestAnimationFrame(render)
     } 

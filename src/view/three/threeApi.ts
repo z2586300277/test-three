@@ -141,12 +141,12 @@ export function setOutLinePass(scene: any, camera: any, renderer: any, threeDom:
     // 需要选中的物体对象, 传入需要边界线进行高亮处理的对象
     const outlinePass: any = new OutlinePass(new THREE.Vector2(threeDom.offsetWidth, threeDom.offsetHeight), scene, camera, ModelList);
     outlinePass.renderToScreen = true;
-    outlinePass.edgeStrength = 4 //粗
+    outlinePass.edgeStrength = 2 //粗
     outlinePass.edgeGlow = 2 //发光
-    outlinePass.edgeThickness = 2.5 //光晕粗
+    outlinePass.edgeThickness = 1.5 //光晕粗
     outlinePass.pulsePeriod = 1 //闪烁
     outlinePass.usePatternTexture = false //是否使用贴图
-    outlinePass.visibleEdgeColor.set('#4169E1'); // 设置显示的颜色
+    outlinePass.visibleEdgeColor.set('yellow'); // 设置显示的颜色
     outlinePass.hiddenEdgeColor.set('#F0F8FF'); // 设置隐藏的颜色
     // 眩光通道outLinePass插入到composer
     Composer.addPass(outlinePass)
@@ -249,7 +249,7 @@ export function multShapeGroup(pList:any, way:any = 'indexFace' || 'pointFace', 
         let H = Maxp.z  - Minp.z
         const L = W > H ? W : H  // 以最大为基准
      
-        if(scene) {
+        if (scene) {
             const g = new THREE.BoxGeometry(10,10,10)
             const m = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random()})
             const mesh = new THREE.Mesh(g , m)
@@ -306,6 +306,8 @@ export  function multShapePlaneGeometry(faceGroup:any, indexGroup:any, uvGroup:a
 
     //加载纹理图
     const texture = textureLoader.load(textureMap)
+    texture.encoding = THREE.sRGBEncoding
+    
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -368,7 +370,7 @@ export function getModelBox(mesh:any ,scene:any = null) {
     const position = new THREE.Vector3();
     mesh.getWorldPosition(position);
 
-    // 点可视化
+    // 包围盒点可视化
     let { max, min }:any = new THREE.Box3().setFromObject(mesh);
     let point_max =new THREE.Vector3(max.x,max.y,max.z);
     let point_max_right =new THREE.Vector3(min.x,max.y,max.z);
@@ -380,7 +382,7 @@ export function getModelBox(mesh:any ,scene:any = null) {
     let point_min_left =new THREE.Vector3(max.x,min.y,min.z);
     let ponit_arr = [point_max, point_max_right, point_max_behind, point_max_under, point_min, point_min_front, point_min_top, point_min_left]
 
-    // 可视化面
+    // 包围盒面可视化
     const T = simplePointsToFace([ponit_arr[0], ponit_arr[1], ponit_arr[5], ponit_arr[2]], 'top_plane', 'red');
     const B = simplePointsToFace([ponit_arr[3], ponit_arr[6], ponit_arr[4], ponit_arr[7]], 'bottom_plane', 'yellow');
     const L = simplePointsToFace([ponit_arr[1], ponit_arr[6], ponit_arr[4], ponit_arr[5]], 'left_plane', 'blue');
@@ -389,36 +391,98 @@ export function getModelBox(mesh:any ,scene:any = null) {
     const K = simplePointsToFace([ponit_arr[5], ponit_arr[2], ponit_arr[7], ponit_arr[4]], 'back_plane', 'Indigo');
     const plane_arr =  [T,B,L,R,F,K]
  
-    //刨切面
+    // 生成切面
     const clipFace_arr = []
     clipFace_arr[0] = new THREE.Plane(new THREE.Vector3(0, -1, 0),max.y); // 上
-    clipFace_arr[1] = new THREE.Plane(new THREE.Vector3(0, 1, 0), min.y); // 下
-    clipFace_arr[2] = new THREE.Plane(new THREE.Vector3(1, 0, 0), min.x); // 左
+    clipFace_arr[1] = new THREE.Plane(new THREE.Vector3(0, 1, 0), -min.y); // 下
+    clipFace_arr[2] = new THREE.Plane(new THREE.Vector3(1, 0, 0), -min.x); // 左
     clipFace_arr[3] = new THREE.Plane(new THREE.Vector3(-1, 0, 0),max.x); // 右
     clipFace_arr[4] = new THREE.Plane(new THREE.Vector3(0, 0, -1),max.z); // 前
     clipFace_arr[5] = new THREE.Plane(new THREE.Vector3(0, 0, 1), -min.z); // 后    
 
-    // 材质 克隆
+    // 切割配置
+    const clipFace_Way:any = {
+        x: { clip: clipFace_arr[2], width: max.x - min.x, end: clipFace_arr[2].constant },
+        _x: { clip: clipFace_arr[3], width: max.x - min.x, end: clipFace_arr[3].constant },
+        y: { clip: clipFace_arr[1], width: max.y - min.y, end: clipFace_arr[1].constant },
+        _y: { clip: clipFace_arr[0], width: max.y - min.y, end: clipFace_arr[0].constant },
+        z: { clip: clipFace_arr[4], width: max.z - min.z, end: clipFace_arr[4].constant },
+        _z: { clip: clipFace_arr[5], width: max.z - min.z, end: clipFace_arr[5].constant },
+        reset: () => {
+            ['x','y', 'z'].forEach((i:any) => {
+                clipFace_Way[i].clip.constant = clipFace_Way[i].end
+                clipFace_Way['_'+ i].clip.constant = clipFace_Way['_'+ i].end
+            })
+        }
+    } 
+
+    // 材质 克隆 防止相同材质出问题
     if (Array.isArray(mesh.material)) mesh.material =  mesh.material.map((i:any) => i.clone())
     else mesh.material = mesh.material.clone();
 
+    // 将切面赋予材质
     mesh.material.clippingPlanes = clipFace_arr
   
-
     // 可视化开发
     if( scene) {
-        // plane_arr.forEach((i:any) => scene.add(i))
-        // ponit_arr.map((i:any) => {
-        //     const g = new THREE.BoxGeometry(10,10,10)
-        //     const m = new THREE.MeshBasicMaterial({ color: 'red'})
-        //     const c = new THREE.Mesh(g , m)
-        //     c.position.set(...i)
-        //     scene.add(c)  
-        // })
+        // 可视化显示包围面
+        plane_arr.forEach((i:any) => scene.add(i))
+
+        // 可视化显示包围点
+        ponit_arr.map((i:any) => {
+            const g = new THREE.BoxGeometry(10,10,10)
+            const m = new THREE.MeshBasicMaterial({ color: 'red'})
+            const c = new THREE.Mesh(g , m)
+            c.position.set(...i)
+            scene.add(c)  
+        })
+
         // 通过PlaneHelper辅助可视化显示剪裁平面Plane
-        // let helper = new THREE.PlaneHelper(a, 300, 0xffff00);
-        // scene.add(helper);
+        clipFace_arr.forEach((a:any) => scene.add(new THREE.PlaneHelper(a, 300, 0xffff00)))
     }
     
-    return  { max, min , plane_arr, ponit_arr , clipFace_arr , position}
+    return  { max, min , plane_arr, ponit_arr , clipFace_arr ,clipFace_Way, position}
 }
+
+
+/**
+ * 动态管道
+ * @param curveList 曲线点组
+ * @param longSection 长分段数目
+ * @param radius 半径
+ * @param radiusSection 半径分段 
+ * @param isClose 是否闭合
+ * @returns 
+ */
+export function createTube(curveList:any, url:any,opacity:any = 1,radius:any = 10, longSection:any = 640,radiusSection:any = 80, isClose:any = false) {
+    
+    // 生成曲线
+    let curve = new THREE.CatmullRomCurve3(curveList.map((p:any) =>  new THREE.Vector3(...p)), false);
+    const tubeGeometry = new THREE.TubeGeometry(curve, longSection, radius, radiusSection, isClose);
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(url);
+    texture.encoding = THREE.sRGBEncoding
+  
+    // 设置阵列模式 RepeatWrapping
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+  
+    // 设置x方向的重复数(沿着管道路径方向)
+    // 设置y方向的重复数(环绕管道方向)
+    texture.repeat.x = 10;
+    texture.repeat.y = 4;
+  
+    // 设置管道纹理偏移数,便于对中
+    texture.offset.y = 0.9;
+  
+    const tubeMaterial = new THREE.MeshPhongMaterial({
+      map: texture,
+      transparent: true,
+      opacity
+    });
+  
+    const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+  
+    return tube
+  
+  }
