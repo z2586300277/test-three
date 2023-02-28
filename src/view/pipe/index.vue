@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock ,floorPlane, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { worldP} from './pipe' 
 
@@ -78,6 +78,8 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
+        console.log(object)
+        return viewer.outlinePass.selectedObjects = [object]
 
         const g = new THREE.BoxGeometry(10,10,10)
         const m = new THREE.MeshBasicMaterial({ color: 'red'})
@@ -114,6 +116,8 @@ function initScene(DOM:any) {
     renderer.setClearColor( 0xf5f5f5 )
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.localClippingEnabled = true;
+    // 开启模型对象的局部剪裁平面功能如果不设置为true，设置剪裁平面的模型不会被剪裁
+    renderer.localClippingEnabled = true;
     DOM.appendChild(renderer.domElement)
     
 
@@ -145,20 +149,20 @@ function initScene(DOM:any) {
     // 世界坐标
     worldP(scene)
     
-
-    // 开启模型对象的局部剪裁平面功能
-    // 如果不设置为true，设置剪裁平面的模型不会被剪裁
-    renderer.localClippingEnabled = true;
-    
+    const fpsRender = setFpsClock(60)
     render()
+
     function render() {
-        /* 渲染 */
-        stats && stats.update()
-        PIPE && (PIPE.material.map.offset.x -= 0.01)
-        PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation()
-        if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
-        else  renderer.render(scene, camera)
-        /* 渲染 */
+        fpsRender(() => {
+            /* 渲染 */
+            stats && stats.update()
+            PIPE && (PIPE.material.map.offset.x -= 0.01)
+            PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation()
+            if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
+            else  renderer.render(scene, camera)
+            /* 渲染 */
+        })
+      
         requestAnimationFrame(render)
     } 
 

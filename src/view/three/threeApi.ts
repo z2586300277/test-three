@@ -201,7 +201,7 @@ export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
 }
 
 // 顶点格式化
-export const  formatVertices = (value:[]) => value.reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+export const  formatVertices = (value:[]) => value.reduce((j:any, i:any) => [ ...j, i.x, i.y, i.z], [])
 
 // 线物体
 export function lineGeometry(arr:any) {
@@ -226,7 +226,7 @@ export function multShapeGroup(pList:any, way:any = 'indexFace' || 'pointFace', 
     // 直接格式化成顶点组
     if (way === 'pointFace') {
 
-        const faceGroup = pList.map((i:any,k:any, o:any) => (k >= 2) ? [o[0], o[k - 1], o[k]]:false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[]).reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+        const faceGroup = pList.map((i:any,k:any, o:any) => (k >= 2) ? [o[0], o[k - 1], o[k]]:false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[]).reduce((j:any, i:any) => [...j,i.x, i.y, i.z], [])
         
         return {faceGroup}
     }
@@ -236,7 +236,7 @@ export function multShapeGroup(pList:any, way:any = 'indexFace' || 'pointFace', 
         
         const indexGroup = pList.map((i:any,k:any, o:any) => (k >= 2) ? [0, k-1, k] :false ).filter((i:any) => i).reduce((i:any,j:any) => [...i,...j],[])
 
-        const faceGroup = pList.reduce((j:any, i:any) => [i.x, i.y, i.z, ...j], [])
+        const faceGroup = pList.reduce((j:any, i:any) => [...j, i.x, i.y, i.z], [])
 
         const uvMaxMin = pList.reduce((p:any, i:any) => ({x: [...p['x'],i['x']],y: [...p['y'],i['y']],z: [...p['z'],i['z']]}), {x: [], y:[], z: []})
         
@@ -327,7 +327,7 @@ export function pointsGeometry(vertices:any) {
 
     geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 
-    const material = new THREE.PointsMaterial( { color: 'red', size: 80 } );
+    const material = new THREE.PointsMaterial( { color: 'red', size: 10 } );
 
     const points = new THREE.Points( geometry, material );
 
@@ -485,4 +485,31 @@ export function createTube(curveList:any, url:any,opacity:any = 1,radius:any = 1
   
     return tube
   
-  }
+}
+
+// 设置时钟 fps
+export function setFpsClock(FPS:number = 144) {
+        
+    // 创建一个时钟对象Clock
+    const clock = new THREE.Clock();
+
+    // 设置渲染频率为30FBS，也就是每秒调用渲染器render方法大约30次
+    const renderT = 1 / FPS; //单位秒  间隔多长时间渲染渲染一次
+
+    // 声明一个变量表示render()函数被多次调用累积时间
+    // 如果执行一次renderer.render，timeS重新置0
+    let timeS = 0;
+
+    return (render:any) => {
+
+        const T = clock.getDelta();
+        timeS = timeS + T;
+        
+        if (timeS > renderT) {
+            // 控制台查看渲染器渲染方法的调用周期，也就是间隔时间是多少
+            render()   
+            //renderer.render每执行一次，timeS置0
+            timeS = 0;
+        }
+    }
+}

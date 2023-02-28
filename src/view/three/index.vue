@@ -1,11 +1,11 @@
 <template>
-    <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
+    <div ref="threeDom" class="threeDom" @dblclick="clickDraw"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted,watch,watchEffect , reactive} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,formatVertices, lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry} from './threeApi'
+import { shaderSky, floorPlane, setControls, loadFBX ,setFpsClock, setOutLinePass , setStats,  getWebGLMouse , clickIntersect,formatVertices, lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry} from './threeApi'
 import { loadTiles, TilesUpadate, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
@@ -23,8 +23,9 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face } = intersect
-        // viewer.outlinePass.selectedObjects = [object]
-        // console.log(viewer)
+        viewer.outlinePass.selectedObjects = [object]
+        
+        // tiles 
         const tilesBatch = TilesBatchTable(face, object)
         if ( object && tilesBatch ) object.traverse( (c:any) => c.isMesh && (c.material.uniforms.highlightedBatchId.value = tilesBatch.hoveredBatchid))
     }
@@ -39,8 +40,9 @@ watch(point_arr.value,() => {
     const line = lineGeometry(arr)
     const {indexGroup, faceGroup, uvGroup } = multShapeGroup(point_arr.value, 'indexFace', viewer.scene)
     const area = multShapePlaneGeometry(faceGroup,indexGroup, uvGroup)
-    area.position.y += 3
+    area.position.y += 10
 
+    // 生成后 后续直接更新点信息
     viewer.scene.add(points)
     viewer.scene.add(line)
     viewer.scene.add(area)
@@ -81,6 +83,7 @@ function initScene(DOM:any) {
     controls.addEventListener('change', () => {
         if(controls.target.y < 0)  controls.target.y = 0
     })
+
     const sky = shaderSky()
     const sceneTexture = new THREE.CubeTextureLoader()
     .load([
@@ -99,15 +102,15 @@ function initScene(DOM:any) {
 
     const GUI = createGUI(THREE,scene,camera,controls)
 
-    loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
-        object3d.rotation.y = (-180 * Math.PI) / 180;
-        object3d.position.set(61.59, -6.1, -58.5);
-        const folder = GUI.addFolder('模型[' + Date.now() + ']');
-        ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
-        ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
+    // loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
+    //     object3d.rotation.y = (-180 * Math.PI) / 180;
+    //     object3d.position.set(61.59, -6.1, -58.5);
+    //     const folder = GUI.addFolder('模型[' + Date.now() + ']');
+    //     ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
+    //     ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
       
-    })
-    loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => scene.add(object3d)))
+    // })
+    // loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => scene.add(object3d)))
 
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
@@ -116,35 +119,20 @@ function initScene(DOM:any) {
 
     const stats = setStats()
 
-    // 创建一个时钟对象Clock
-    const clock = new THREE.Clock();
-    // 设置渲染频率为30FBS，也就是每秒调用渲染器render方法大约30次
-    const FPS = 144;
-    const renderT = 1 / FPS; //单位秒  间隔多长时间渲染渲染一次
-    // 声明一个变量表示render()函数被多次调用累积时间
-    // 如果执行一次renderer.render，timeS重新置0
-    let timeS = 0;
-    
-    render()
-    function render() {
 
-        const T = clock.getDelta();
-        timeS = timeS + T;
-        if (timeS > renderT) {
-            // 控制台查看渲染器渲染方法的调用周期，也就是间隔时间是多少
-            
-            /* 渲染 */
+    const rederFps = setFpsClock(16)
+    render()
+
+    function render() {
+        rederFps(() => {
+           /* 渲染 */
             tilesRenderer && TilesUpadate(tilesRenderer)
             stats && stats.update()
             if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
             else  renderer.render(scene, camera)
             /* 渲染 */
-
-            //renderer.render每执行一次，timeS置0
-            timeS = 0;
-        }
+        })   
         requestAnimationFrame(render)
-     
     } 
 
     window.onresize = () => {
