@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, setFpsClock ,floorPlane, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock ,floorPlane,mixerAnimation, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { worldP} from './pipe' 
 
@@ -25,6 +25,7 @@ let PIPE_OPTION:any = {
     clipSpeed: 0.3,
     pipeRadius: 5
 }
+let MIXER:any
 
 // 清除点
 function clear() {
@@ -78,8 +79,14 @@ function modelClick (e: any) {
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
-        console.log(object)
-        return viewer.outlinePass.selectedObjects = [object]
+        
+        const modelHead = viewer.scene.getObjectByName('G01');
+        console.log(modelHead.position)
+        var group = new THREE.Group();
+        group.add(modelHead);
+        viewer.scene.add(group);
+        ['x', 'y', 'z'].forEach(i => viewer.GUI.add(group.rotation, i).min(-500).max(500).name(i + '轴坐标'));
+        return viewer.outlinePass.selectedObjects = [group]
 
         const g = new THREE.BoxGeometry(10,10,10)
         const m = new THREE.MeshBasicMaterial({ color: 'red'})
@@ -138,6 +145,10 @@ function initScene(DOM:any) {
         ['x', 'y', 'z'].forEach(i => folder.add(o.position, i).min(-500).max(500).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(o.scale, i).min(0).max(10).name(i + '缩放'));
         scene.add(o)
+
+        // 模型动画
+        MIXER = mixerAnimation(o)
+        MIXER.runAction(MIXER.actions[0], 5).play()
     })
     
     // 后期制作
@@ -156,6 +167,7 @@ function initScene(DOM:any) {
         fpsRender(() => {
             /* 渲染 */
             stats && stats.update()
+            MIXER && MIXER.mixerRender()
             PIPE && (PIPE.material.map.offset.x -= 0.01)
             PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation()
             if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 

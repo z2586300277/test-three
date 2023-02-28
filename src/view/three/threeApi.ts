@@ -513,3 +513,37 @@ export function setFpsClock(FPS:number = 144) {
         }
     }
 }
+
+// 动画播放
+export function mixerAnimation (object3d: any) {
+
+    const clock = new THREE.Clock();
+
+    // 动画混合器
+    const mixer = new THREE.AnimationMixer(object3d);
+
+    // 获取第一个动画
+    let actions = object3d.animations;
+
+    // 动画控制
+    const runAction = (action:any, speed:any = 1, startTime:any = 0) => {
+        const animationAction = mixer.clipAction(action);
+        animationAction.loop = THREE.LoopOnce // 不循环
+        animationAction.time = startTime // 不循环
+        animationAction.timeScale = speed // 播放速度
+        animationAction.clampWhenFinished = true //停留到最后一帧
+        return animationAction
+    }
+
+    const mixerRender = () => {
+
+        //获取间隔时间  两帧之间的间隔
+        const deltaTime = clock.getDelta()
+        
+        mixer.update( deltaTime );
+
+    }
+
+    return { mixer, actions , runAction, mixerRender }
+   
+}
