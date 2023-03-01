@@ -2,7 +2,7 @@
     <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
     <div class="btn">
         <el-button @click="clear">清除点</el-button>
-        <el-button @click="setPipe">生成管道</el-button>
+        <el-button @click="setCurve">生成管道</el-button>
         <el-button @click="clearPipe">清除管道</el-button>
     </div>
 </template>
@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, setFpsClock ,floorPlane,mixerAnimation, createTube, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock ,curveMove,floorPlane,mixerAnimation, pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { worldP} from './pipe' 
 
@@ -22,10 +22,15 @@ let PIPE:any
 let PIPE_OPTION:any = {
     clipWayName: '',
     clipAnimation: null,
-    clipSpeed: 0.3,
+    clipSpeed: 0.8,
     pipeRadius: 5
 }
 let MIXER:any
+let curveMoveAnimation:any
+
+onMounted(() =>  viewer = initScene(threeDom.value))
+
+onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
 
 // 清除点
 function clear() {
@@ -40,69 +45,60 @@ function clearPipe() {
 }
 
 
-function setPipe() {
-    PIPE = createTube(
-        pointList,
-        'https://img0.baidu.com/it/u=2087560284,3492925789&fm=253&fmt=auto&app=138&f=JPEG?w=1023&h=500',
-        0.85,
-        PIPE_OPTION.pipeRadius
-    ) 
+
+function setCurve() {
+
+    // 生成曲线
+    const curve = createCurve(pointList);
+
+    // 生成管道
+    PIPE = createTube(curve, 'https://img0.baidu.com/it/u=2087560284,3492925789&fm=253&fmt=auto&app=138&f=JPEG?w=1023&h=500', 0.85,PIPE_OPTION.pipeRadius ) 
     viewer.scene.add(PIPE)
+    
+    // 生成管道动画 
+    const {clipFace_Way, pipeAnimation}:any = getModelBox(PIPE);
+    clipFace_Way['x'].clip.constant -= clipFace_Way['x'].width
     viewer.outlinePass.selectedObjects = [PIPE]
+6
+    // 曲线路径运动
+    const cube = pointCube([0,0,0], 20, 'blue')
+    viewer.scene.add(cube)
 
-    console.log(PIPE)
+    // 正向操作
+    curveMoveAnimation = curveMove(curve, cube, 0.01,() => {
 
-    // 管道动画
-    const {clipFace_Way }:any = getModelBox(PIPE);
-    
-    
-    viewer.GUI.add(PIPE_OPTION,'clipSpeed').min(0.01).max(5).name('动画播放速度')
-    viewer.GUI.add(PIPE_OPTION,'clipWayName',['y','_y','x','_x','z','_z']).name('动画播放方式').onChange((i:any) => {
-        clipFace_Way.reset()
-        clipFace_Way[i].clip.constant -= clipFace_Way[i].width
-        PIPE_OPTION.clipAnimation = () => {  
-            if (clipFace_Way[i].clip.constant + PIPE_OPTION.clipSpeed > clipFace_Way[i].end) PIPE_OPTION.clipAnimation = null
-            else clipFace_Way[i].clip.constant += PIPE_OPTION.clipSpeed
-        }
-     })
-     
+        // 执行反操作
+        curveMoveAnimation = curveMove(curve, cube, 0.01,() => {
+
+            curveMoveAnimation = null
+            
+            // 创建动画
+            PIPE_OPTION.clipAnimation = pipeAnimation('_x')
+
+            viewer.GUI.add(PIPE_OPTION,'clipSpeed').min(0.01).max(5).name('动画播放速度')
+            viewer.GUI.add(PIPE_OPTION,'clipWayName',['y','_y','x','_x','z','_z']).name('动画播放方式').onChange((i:any) =>(PIPE_OPTION.clipAnimation = pipeAnimation('_x')))
+
+        }, 'back')
+
+    }, 'go')
 
 }
-
-
-onMounted(() => {
-  viewer = initScene(threeDom.value)
-})
 
 function modelClick (e: any) {
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
-        
-        const modelHead = viewer.scene.getObjectByName('G01');
-        console.log(modelHead.position)
-        var group = new THREE.Group();
-        group.add(modelHead);
-        viewer.scene.add(group);
-        ['x', 'y', 'z'].forEach(i => viewer.GUI.add(group.rotation, i).min(-500).max(500).name(i + '轴坐标'));
-        return viewer.outlinePass.selectedObjects = [group]
 
-        const g = new THREE.BoxGeometry(10,10,10)
-        const m = new THREE.MeshBasicMaterial({ color: 'red'})
-        const mesh = new THREE.Mesh(g , m)
-        mesh.position.set(...point)
+        // 增加点
+        const pointMesh = pointCube(point)
+        viewer.scene.add(pointMesh)  
 
         pointList.push(point)
-        cubeArr.push(mesh)
+        cubeArr.push(pointMesh)
 
-        viewer.scene.add(mesh)  
-      
     }
 }
-
-
-onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
 
 function initScene(DOM:any) {
 
@@ -120,18 +116,14 @@ function initScene(DOM:any) {
     renderer.setPixelRatio( window.devicePixelRatio * 2)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    renderer.setClearColor( 0xf5f5f5 )
+    renderer.setClearColor( 0x000000 )
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.localClippingEnabled = true;
-    // 开启模型对象的局部剪裁平面功能如果不设置为true，设置剪裁平面的模型不会被剪裁
-    renderer.localClippingEnabled = true;
+    renderer.localClippingEnabled = true; // 剪裁
     DOM.appendChild(renderer.domElement)
     
-
     const controls =  setControls(camera, renderer)
-    controls.addEventListener('change', () => {
-        if(controls.target.y < 0)  controls.target.y = 0
-    })
+    controls.addEventListener('change', () => (controls.target.y < 0) && (controls.target.y = 0))   
 
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
@@ -147,8 +139,8 @@ function initScene(DOM:any) {
         scene.add(o)
 
         // 模型动画
-        MIXER = mixerAnimation(o)
-        MIXER.runAction(MIXER.actions[0], 5).play()
+        // MIXER = mixerAnimation(o)
+        // MIXER.runAction(MIXER.actions[0], 5).play()
     })
     
     // 后期制作
@@ -157,9 +149,6 @@ function initScene(DOM:any) {
     // 帧率显示
     const stats = setStats()
 
-    // 世界坐标
-    worldP(scene)
-    
     const fpsRender = setFpsClock(60)
     render()
 
@@ -169,7 +158,8 @@ function initScene(DOM:any) {
             stats && stats.update()
             MIXER && MIXER.mixerRender()
             PIPE && (PIPE.material.map.offset.x -= 0.01)
-            PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation()
+            curveMoveAnimation && curveMoveAnimation()
+            PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation(PIPE_OPTION.clipSpeed, () => PIPE_OPTION.clipAnimation = null)
             if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
             else  renderer.render(scene, camera)
             /* 渲染 */

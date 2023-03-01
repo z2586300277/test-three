@@ -9,25 +9,40 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
+export function pointCube(point:any, size:number= 10, color:any = 'red') {
+    
+    const g = new THREE.BoxGeometry(size,size,size)
+
+    const m = new THREE.MeshBasicMaterial({ color })
+
+    const mesh = new THREE.Mesh(g , m)
+
+    mesh.position.set(...point)
+
+    return mesh
+}
+
 export const shaderSky = () => {
+
     // 顶点着色
     const vertexShader = `
-    letying vec3 vWorldPosition;
-    void main() {
-      vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-      vWorldPosition = worldPosition.xyz;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        letying vec3 vWorldPosition;
+        void main() {
+        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     }`;
+
     // 片元
     const fragmentShader = `
-    uniform vec3 topColor;
-    uniform vec3 bottomColor;
-    uniform float offset;
-    uniform float exponent;
-    letying vec3 vWorldPosition;
-    void main() {
-        float h = normalize( vWorldPosition + offset ).y;
-        gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 );
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+        letying vec3 vWorldPosition;
+        void main() {
+            float h = normalize( vWorldPosition + offset ).y;
+            gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 );
     }`
     const uniforms = {
         topColor: { value: new THREE.Color(0x0077ff) },
@@ -38,6 +53,7 @@ export const shaderSky = () => {
             encoding: THREE.sRGBEncoding
         }
     };
+
     const skyGeo = new THREE.SphereGeometry(4000, 32, 15);
     const skyMat = new THREE.ShaderMaterial({
         uniforms: uniforms,
@@ -416,6 +432,16 @@ export function getModelBox(mesh:any ,scene:any = null) {
         }
     } 
 
+    // 动画渲染
+    const pipeAnimation = (i:any) =>{
+        clipFace_Way.reset()
+        clipFace_Way[i].clip.constant -= clipFace_Way[i].width
+        return (speed:any ,callback:any) => {  
+            if (clipFace_Way[i].clip.constant + speed > clipFace_Way[i].end)  callback()
+            else clipFace_Way[i].clip.constant += speed
+        }
+    }
+
     // 材质 克隆 防止相同材质出问题
     if (Array.isArray(mesh.material)) mesh.material =  mesh.material.map((i:any) => i.clone())
     else mesh.material = mesh.material.clone();
@@ -441,9 +467,31 @@ export function getModelBox(mesh:any ,scene:any = null) {
         clipFace_arr.forEach((a:any) => scene.add(new THREE.PlaneHelper(a, 300, 0xffff00)))
     }
     
-    return  { max, min , plane_arr, ponit_arr , clipFace_arr ,clipFace_Way, position}
+    return  { max, min , plane_arr, ponit_arr , clipFace_arr ,clipFace_Way, pipeAnimation, position}
 }
 
+// 创造曲线
+export const createCurve = (curveList:any) => new THREE.CatmullRomCurve3(curveList.map((p:any) =>  new THREE.Vector3(...p)), false)
+
+// 曲线运动
+export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any = () => {},way:any= 'go' || 'back') => {
+    let time = (way === 'go' ? 0.0001 : 1)
+    return way === 'go' ? () => {
+        time += speed
+        if(time > 1) return callback()
+        const p = curve.getPoint(time)
+        model.position.x = p.x
+        model.position.y = p.y
+        model.position.z = p.z    
+    } : () => {
+        time -= speed
+        if(time < 0) return callback()
+        const p = curve.getPoint(time)
+        model.position.x = p.x
+        model.position.y = p.y
+        model.position.z = p.z    
+    }
+} 
 
 /**
  * 动态管道
@@ -454,14 +502,12 @@ export function getModelBox(mesh:any ,scene:any = null) {
  * @param isClose 是否闭合
  * @returns 
  */
-export function createTube(curveList:any, url:any,opacity:any = 1,radius:any = 10, longSection:any = 640,radiusSection:any = 80, isClose:any = false) {
+export function createTube(curve:any, url:any,opacity:any = 1,radius:any = 10, longSection:any = 640,radiusSection:any = 80, isClose:any = false) {
     
-    // 生成曲线
-    let curve = new THREE.CatmullRomCurve3(curveList.map((p:any) =>  new THREE.Vector3(...p)), false);
     const tubeGeometry = new THREE.TubeGeometry(curve, longSection, radius, radiusSection, isClose);
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load(url);
-    texture.encoding = THREE.sRGBEncoding
+    // texture.encoding = THREE.sRGBEncoding
   
     // 设置阵列模式 RepeatWrapping
     texture.wrapS = THREE.RepeatWrapping

@@ -102,15 +102,14 @@ function initScene(DOM:any) {
 
     const GUI = createGUI(THREE,scene,camera,controls)
 
-    // loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
-    //     object3d.rotation.y = (-180 * Math.PI) / 180;
-    //     object3d.position.set(61.59, -6.1, -58.5);
-    //     const folder = GUI.addFolder('模型[' + Date.now() + ']');
-    //     ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
-    //     ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
+    loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
+        object3d.rotation.y = (-180 * Math.PI) / 180;
+        object3d.position.set(61.59, -6.1, -58.5);
+        const folder = GUI.addFolder('模型[' + Date.now() + ']');
+        ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
+        ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
       
-    // })
-    // loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => scene.add(object3d)))
+    })
 
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
