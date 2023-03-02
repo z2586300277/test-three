@@ -524,7 +524,7 @@ export function doublePointOffsetRotate(mesh:any , point:any){
 }
 
 // 曲线运动
-export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any = () => {},way:any= 'go' || 'back', insertCallback:any = () =>{}) => {
+export const curveMove = (curve: any, model:any, speed:any= 0.0001,way:any= 'go' || 'back', insertCallback:any = () =>{},endCallback:any = () => {}) => {
 
     let time = (way === 'go' ? 0.0001 : 1)
 
@@ -533,7 +533,7 @@ export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any 
     return way === 'go' ? () => {
 
         time += speed
-        if(time > 1) return callback()
+        if(time > 1) return endCallback()
 
         const p = curve.getPointAt(time)  // 是getPoint 修正版本
         
@@ -544,7 +544,7 @@ export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any 
     } : () => {
 
         time -= speed
-        if(time < 0) return callback()
+        if(time < 0) return endCallback()
 
         const p = curve.getPoint(time)
 
@@ -592,6 +592,31 @@ export function createTube(curve:any, url:any,opacity:any = 1,radius:any = 10, l
   
     return tube
   
+}
+
+// 创建贴图
+export function createTexture(url:any) {
+
+    const textureLoader = new THREE.TextureLoader();
+
+    const texture = textureLoader.load(url);
+
+    texture.encoding = THREE.sRGBEncoding
+
+    // 设置阵列模式 RepeatWrapping
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    // 设置x方向的重复数(沿着管道路径方向)
+    // 设置y方向的重复数(环绕管道方向)
+    texture.repeat.x = 10;
+    texture.repeat.y = 4;
+
+    // 设置管道纹理偏移数,便于对中
+    texture.offset.y = 0.9;
+
+    return texture
+    
 }
 
 // 设置时钟 fps
