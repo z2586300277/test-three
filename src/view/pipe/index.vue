@@ -3,15 +3,14 @@
     <div class="btn">
         <el-button @click="clear">清除点</el-button>
         <el-button @click="setCurve">生成管道</el-button>
-        <el-button @click="clearPipe">清除管道</el-button>
-        <el-button @click="carGO">路径动画</el-button>
+        <el-button @click="stop=!stop">暂停</el-button>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, setFpsClock , loadGltf, curveMove,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock , createTexture, loadGltf, curveMove,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { worldP} from './pipe' 
 
@@ -19,17 +18,17 @@ const threeDom = ref()
 let viewer:any;
 let pointList:any = []
 let cubeArr:Array<any> = []
-let PIPE:any
+let PIPE_ARR:any = [null,null,null]
 let PIPE_OPTION:any = {
-    clipWayName: '',
-    clipAnimation: null,
-    clipSpeed: 0.8,
-    pipeRadius: 5
+    clipSpeed: 0.03,
+    pipeRadius: 8
 }
+
 let MIXER:any
 let curveMoveAnimation:any
 let pipeHead:any
-let curve:any
+
+const stop = ref(false)
 
 onMounted(() =>  viewer = initScene(threeDom.value))
 
@@ -41,60 +40,84 @@ function clear() {
     cubeArr = []
     pointList = []
 }
-// 清除管子
-function clearPipe() {
-    viewer.scene.remove(PIPE)
-    PIPE = null
-}
 
 
 
 function setCurve() {
 
+    viewer.outlinePass.selectedObjects = [pipeHead]
+
     // 生成曲线
-    curve = createCurve(pointList);
+    const curve = createCurve(pointList);
 
-    // 生成管道
-    PIPE = createTube(curve, 'https://img0.baidu.com/it/u=2087560284,3492925789&fm=253&fmt=auto&app=138&f=JPEG?w=1023&h=500', 0.85,PIPE_OPTION.pipeRadius ) 
-    viewer.scene.add(PIPE)
-    
-    // 生成管道动画 
-    const {clipFace_Way, pipeAnimation}:any = getModelBox(PIPE);
-    clipFace_Way['x'].clip.constant -= clipFace_Way['x'].width
-    viewer.outlinePass.selectedObjects = [PIPE, pipeHead]  
-    
+    /* 第一根管道 */
+    PIPE_ARR[0] = createTube(curve, 'https://img2.baidu.com/it/u=2867681562,1586644503&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1677862800&t=ca5f653200ddc4f64f164b75d22b44c2', 0.85, PIPE_OPTION.pipeRadius / 4)
+    PIPE_ARR[0].material = viewer.scene.getObjectByName('G033').material.clone()
+    viewer.scene.add(PIPE_ARR[0])
+    const pipeClip0 = getModelBox(PIPE_ARR[0]); // 生成管道切割动画控制器
+
+
+    /* 第一次动画组合 */
+    curveMoveAnimation = curveMove(curve, pipeHead, PIPE_OPTION.clipSpeed, 'go',
+        // 执行中
+        (mesh: any, p: any) => {
+            const diff_x = p.x - mesh.position.x
+            pipeClip0.clipFace_Way['_x'].clip.constant += diff_x 
+            mesh.rotation.x += 1
+            mesh.lookAt(p)
+            
+        },
+        function () {
+
+            /* 第二根管道 */
+            PIPE_ARR[1] = createTube(curve, 'https://img1.baidu.com/it/u=543378194,3252169155&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1677862800&t=b08f53a622ceb0c466234f3aff61a379', 1, PIPE_OPTION.pipeRadius)
+            PIPE_ARR[1].material = viewer.scene.getObjectByName('Object023').material.clone()
+            viewer.scene.add(PIPE_ARR[1])
+            const pipeClip1 = getModelBox(PIPE_ARR[1]);
+            pipeClip1.clipFace_Way['z'].clip.constant -= pipeClip1.clipFace_Way['z'].width / 5
+            pipeClip1.clipFace_Way['x'].clip.constant -= pipeClip1.clipFace_Way['x'].width
+
+            /* 第二次组合动画 */
+            curveMoveAnimation = curveMove(curve, pipeHead, PIPE_OPTION.clipSpeed, 'back', (mesh: any, p: any) => {
+                const diff_x = p.x - mesh.position.x
+                pipeClip1.clipFace_Way['x'].clip.constant -= diff_x
+                mesh.lookAt(p)
+            }, function () {
+                
+                /* 第三根管道 */
+                PIPE_ARR[2] = createTube(curve, 'https://img1.baidu.com/it/u=2858466579,1111354287&fm=253&fmt=auto&app=138&f=JPEG?w=499&h=375', 1, PIPE_OPTION.pipeRadius / 2.5)
+                PIPE_ARR[2].material = viewer.scene.getObjectByName('Object041').material.clone()
+                viewer.scene.add(PIPE_ARR[2])
+                const pipeClip2 = getModelBox(PIPE_ARR[2]);
+
+                /* 第三次动画 */
+                curveMoveAnimation = curveMove(curve, pipeHead, PIPE_OPTION.clipSpeed, 'back', (mesh: any, p: any) => {
+                    const diff_x = p.x - mesh.position.x
+                    pipeClip2.clipFace_Way['x'].clip.constant -= diff_x
+                    mesh.lookAt(p)
+                }, function () {
+                    curveMoveAnimation = null
+                }
+                )
+
+
+            })
+
+
+        }
+    )
+
 }
 
 
-function carGO() {
 
-    // 正向操作
-    curveMoveAnimation = curveMove(curve, pipeHead, 0.005,() => {
-
-    // 钻头反向
-    modelReverse(pipeHead)
-
-    // 执行反操作
-    curveMoveAnimation = curveMove(curve, pipeHead, 0.005,() => {
-        curveMoveAnimation = null
-        
-        // // 创建动画
-        // PIPE_OPTION.clipAnimation = pipeAnimation('_x')
-
-        // viewer.GUI.add(PIPE_OPTION,'clipSpeed').min(0.01).max(5).name('动画播放速度')
-        // viewer.GUI.add(PIPE_OPTION,'clipWayName',['y','_y','x','_x','z','_z']).name('动画播放方式').onChange((i:any) =>(PIPE_OPTION.clipAnimation = pipeAnimation(i)))
-
-    }, 'back', (mesh:any, p:any) => { doublePointOffsetRotate(mesh, p)})
-
-    }, 'go', (mesh:any, p:any) => { doublePointOffsetRotate(mesh, p) })
-
-}
 function modelClick (e: any) {
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
 
+        point.z += PIPE_OPTION.pipeRadius
         // 增加点
         const pointMesh = pointCube(point)
         viewer.scene.add(pointMesh)  
@@ -140,9 +163,10 @@ function initScene(DOM:any) {
 
     const GUI:any = createGUI(THREE,scene,camera,controls)
     GUI.add(PIPE_OPTION,'pipeRadius').min(1).max(30).name('管子大小')
+    GUI.add(PIPE_OPTION,'clipSpeed').min(0.001).max(0.1).name('速度')
 
     // 模型加载
-    loadFBX('http://guangfu/chuankuayue.FBX', (o:any) => {
+    loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(o.position, i).min(-500).max(500).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(o.scale, i).min(0).max(10).name(i + '缩放'));
@@ -150,12 +174,12 @@ function initScene(DOM:any) {
 
         // 模型动画
         MIXER = mixerAnimation(o)
-        MIXER.runAction(MIXER.actions[0], 5).play()
+        MIXER.runAction(MIXER.actions[0], 8).play()
     })
 
     loadGltf('http://guangfu/car.gltf', (o:any) => {
         pipeHead = o;
-        o.scale.set(300, 300 , 300);
+        o.scale.set(100, 100 , 100);
         scene.add(o)
     })
     
@@ -165,7 +189,7 @@ function initScene(DOM:any) {
     // 帧率显示
     const stats = setStats()
 
-    const fpsRender = setFpsClock(60)
+    const fpsRender = setFpsClock(30)
     render()
 
     function render() {
@@ -173,9 +197,7 @@ function initScene(DOM:any) {
             /* 渲染 */
             stats && stats.update() // fps 
             MIXER && MIXER.mixerRender() // 模型动画
-            curveMoveAnimation && curveMoveAnimation()  // 曲线动画
-            PIPE && (PIPE.material.map.offset.x -= 0.01) // 材质流动动画
-            PIPE_OPTION.clipAnimation && PIPE_OPTION.clipAnimation(PIPE_OPTION.clipSpeed, () => PIPE_OPTION.clipAnimation = null)  //管道裁剪动画
+            !stop.value && curveMoveAnimation && curveMoveAnimation()  // 曲线动画
             if(viewer && viewer.outlinePass.selectedObjects.length > 0) Composer.render() 
             else  renderer.render(scene, camera)
             /* 渲染 */

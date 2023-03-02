@@ -184,7 +184,7 @@ export function setOutLinePass(scene: any, camera: any, renderer: any, threeDom:
     outlinePass.edgeThickness = 1.5 //光晕粗
     outlinePass.pulsePeriod = 1 //闪烁
     outlinePass.usePatternTexture = false //是否使用贴图
-    outlinePass.visibleEdgeColor.set('yellow'); // 设置显示的颜色
+    outlinePass.visibleEdgeColor.set('#4169E1'); // 设置显示的颜色
     outlinePass.hiddenEdgeColor.set('#F0F8FF'); // 设置隐藏的颜色
     // 眩光通道outLinePass插入到composer
     Composer.addPass(outlinePass)
@@ -533,24 +533,28 @@ export const curveMove = (curve: any, model:any, speed:any= 0.0001,way:any= 'go'
     return way === 'go' ? () => {
 
         time += speed
-        if(time > 1) return endCallback()
+        if(time > 1) time = 1
 
         const p = curve.getPointAt(time)  // 是getPoint 修正版本
         
         insertCallback(model,p, time)
 
         model.position.set(p.x,p.y,p.z)
+
+        if(time === 1) return endCallback()
         
     } : () => {
 
         time -= speed
-        if(time < 0) return endCallback()
+        if(time < 0) time = 0
 
         const p = curve.getPoint(time)
 
         insertCallback(model,p, time)
         
         model.position.copy(p)  
+
+        if(time === 0) return endCallback()
     }
 } 
 
@@ -585,6 +589,7 @@ export function createTube(curve:any, url:any,opacity:any = 1,radius:any = 10, l
     const tubeMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       transparent: true,
+      side: THREE.DoubleSide,
       opacity
     });
   

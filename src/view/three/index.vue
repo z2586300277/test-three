@@ -113,11 +113,9 @@ function initScene(DOM:any) {
 
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
-
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 
     const stats = setStats()
-
 
     const rederFps = setFpsClock(60)
     render()
