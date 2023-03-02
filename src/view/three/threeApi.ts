@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { EffectComposer } from 'three/examples/jsm//postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -8,6 +9,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
+import { Flow } from 'three/examples/jsm/modifiers/CurveModifier.js';
 
 export function pointCube(point:any, size:number= 10, color:any = 'red') {
     
@@ -131,6 +133,26 @@ export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', cal
         callback(object3d)
 
     })
+}
+
+export const loadGltf = (url:string = '', callback: any = () => {}) => {
+
+    //创建加载器
+    const loader = new GLTFLoader()
+
+    //加载模型
+    loader.load(
+        
+        url,
+
+        (gltf:any) =>  callback(gltf.scene),
+
+        //加载
+        (p) =>  {},
+
+        //加载失败
+        (e) => {}
+    )
 }
 
 export function setOutLinePass(scene: any, camera: any, renderer: any, threeDom: any, ModelList: Array<any> = []) {
@@ -473,23 +495,62 @@ export function getModelBox(mesh:any ,scene:any = null) {
 // 创造曲线
 export const createCurve = (curveList:any) => new THREE.CatmullRomCurve3(curveList.map((p:any) =>  new THREE.Vector3(...p)), false)
 
+// 模型反向
+export const modelReverse = (model:any) =>   {
+    const {x, y, z} = model.rotation
+    const p2 = Math.PI * 2
+    model.rotation.set(p2 - x, p2- y, p2 - z)
+}
+
+// 计算点位偏移 等同于 mesh.lookAt(point)
+export function doublePointOffsetRotate(mesh:any , point:any){
+
+     //模型的偏移量
+     let offsetAngle = Math.PI;
+     
+     //创建一个4维矩阵
+     let mtx = new THREE.Matrix4();
+
+     mtx.lookAt(mesh.position.clone(), point, mesh.up);
+
+     mtx.multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0, offsetAngle, 0)));
+
+     //计算出需要进行旋转的四元数值
+     let toRot = new THREE.Quaternion().setFromRotationMatrix(mtx);
+
+     //根据以上值调整角度
+     mesh.quaternion.slerp(toRot, 0.2)
+
+}
+
 // 曲线运动
-export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any = () => {},way:any= 'go' || 'back') => {
+export const curveMove = (curve: any, model:any, speed:any= 0.0001,callback:any = () => {},way:any= 'go' || 'back', insertCallback:any = () =>{}) => {
+
     let time = (way === 'go' ? 0.0001 : 1)
+
+    let process = 0
+
     return way === 'go' ? () => {
+
         time += speed
         if(time > 1) return callback()
-        const p = curve.getPoint(time)
-        model.position.x = p.x
-        model.position.y = p.y
-        model.position.z = p.z    
+
+        const p = curve.getPointAt(time)  // 是getPoint 修正版本
+        
+        insertCallback(model,p, time)
+
+        model.position.set(p.x,p.y,p.z)
+        
     } : () => {
+
         time -= speed
         if(time < 0) return callback()
+
         const p = curve.getPoint(time)
-        model.position.x = p.x
-        model.position.y = p.y
-        model.position.z = p.z    
+
+        insertCallback(model,p, time)
+        
+        model.position.copy(p)  
     }
 } 
 

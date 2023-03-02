@@ -119,7 +119,7 @@ function initScene(DOM:any) {
     const stats = setStats()
 
 
-    const rederFps = setFpsClock(16)
+    const rederFps = setFpsClock(60)
     render()
 
     function render() {
