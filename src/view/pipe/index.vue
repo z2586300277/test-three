@@ -1,16 +1,17 @@
 <template>
-    <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
+    <div ref="threeDom" class="threeDom" @mousedown.prevent.stop="modelClick" @mousemove="pointMove"></div>
     <div class="btn">
         <el-button @click="clear">清除点</el-button>
-        <el-button @click="setCurve">生成管道</el-button>
+        <el-button @click="setCurve(CURVE)">根据曲线生成管道</el-button>
         <el-button @click="stop=!stop">暂停</el-button>
+        <el-button @click="closeDraw=false">继续绘制</el-button>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, setFpsClock , createTexture, loadGltf, curveMove,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock , createTexture,createLine, loadGltf, curveMove,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
 import { worldP} from './pipe' 
 
@@ -43,12 +44,9 @@ function clear() {
 
 
 
-function setCurve() {
+function setCurve(curve:any) {
 
     viewer.outlinePass.selectedObjects = [pipeHead]
-
-    // 生成曲线
-    const curve = createCurve(pointList);
 
     /* 第一根管道 */
     PIPE_ARR[0] = createTube(curve, 'https://img2.baidu.com/it/u=2867681562,1586644503&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1677862800&t=ca5f653200ddc4f64f164b75d22b44c2', 0.85, PIPE_OPTION.pipeRadius / 4)
@@ -110,13 +108,17 @@ function setCurve() {
 }
 
 
-
+// 生成曲线
+let CURVE:any
+let line:any = null 
+let closeDraw = false;
 function modelClick (e: any) {
+    if(closeDraw) return
+    if(e.button === 2)  return closeDraw = true
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
     if(intersect) {
         const { object, face, point} = intersect
-
         point.z += PIPE_OPTION.pipeRadius
         // 增加点
         const pointMesh = pointCube(point)
@@ -130,6 +132,34 @@ function modelClick (e: any) {
         pointList.push(point)
         cubeArr.push(pointMesh)
 
+    }
+}
+
+
+function pointMove(e:any) {
+    if (closeDraw && pointList.length>1) {
+        CURVE = createCurve(pointList)
+        line.geometry.setFromPoints(CURVE.getPoints(100))
+        return
+    }
+    
+    const webGLMosue = getWebGLMouse(e)
+    const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
+    if(intersect) {
+
+        const { point} = intersect
+        point.z += PIPE_OPTION.pipeRadius
+
+        if (pointList.length < 1) return
+        const curve = createCurve([...pointList, point])
+        const points = curve.getPoints(100); 
+        
+        // 线条创建或者更新
+        if(!line) {
+            line = createLine(points,'white', 50)
+            viewer.scene.add(line)
+        }
+        else line.geometry.setFromPoints(points)
     }
 }
 
@@ -189,7 +219,7 @@ function initScene(DOM:any) {
     // 帧率显示
     const stats = setStats()
 
-    const fpsRender = setFpsClock(30)
+    const fpsRender = setFpsClock(60)
     render()
 
     function render() {

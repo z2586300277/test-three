@@ -257,6 +257,24 @@ export function lineGeometry(arr:any) {
 
     return mesh
 }
+// point 生成线
+export function createLine(points:any, color:any = 'red', linewidth:any = 10) {
+
+    let geometry = new THREE.BufferGeometry(); //声明一个几何体对象Geometry
+
+	// setFromPoints方法从points中提取数据改变几何体的顶点属性vertices
+	geometry.setFromPoints(points);
+
+	//材质对象
+	let material = new THREE.LineBasicMaterial({
+	  color,
+      linewidth, // 平台原因始终唯1
+	});
+    
+	//线条模型对象
+	return new THREE.Line( geometry, material );
+
+}
 
 // 多变形顶点组算法处理  生成面组
 export function multShapeGroup(pList:any, way:any = 'indexFace' || 'pointFace', scene:any = null) {
