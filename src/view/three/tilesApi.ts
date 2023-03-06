@@ -46,7 +46,7 @@ export const loadTiles = (camera:any, renderer:any, scene:any, url:string) => {
           
             if ( c.isMesh ) {
                
-                c.material = batchIdHighlightShaderMixin(c.material);
+                // c.material = batchIdHighlightShaderMixin(c.material);
 
             }
         });

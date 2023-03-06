@@ -4,7 +4,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '',
-    redirect: '/pipe',
+    redirect: '/lib',
   },
   {
     path: '/three',
@@ -13,6 +13,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/pipe',
     component: () => import('../view/pipe/index.vue')
+  },
+  {
+    path: '/lib',
+    component: () => import('../view/lib/index.vue')
   }
 ]
 
