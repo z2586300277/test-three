@@ -108,21 +108,21 @@ function initScene(DOM:any) {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
-        object3d.traverse((c:any )=> {
+        // object3d.traverse((c:any )=> {
           
-          if ( c.isMesh ) {
-            if( Array.isArray(c.material)) c.material.forEach((i:any) => {
-                i.color.set(0xFFFFFF*Math.random())
-                i.transparent = true
-                i.opacity = 0.6 
-            })
-            else  {
-                c.material.transparent = true
-                c.material.opacity = 0.6 
+        //   if ( c.isMesh ) {
+        //     if( Array.isArray(c.material)) c.material.forEach((i:any) => {
+        //         i.color.set(0xFFFFFF*Math.random())
+        //         i.transparent = true
+        //         i.opacity = 0.6 
+        //     })
+        //     else  {
+        //         c.material.transparent = true
+        //         c.material.opacity = 0.6 
 
-            }
-          }
-        });
+        //     }
+        //   }
+        // });
         scene.add(object3d)
     })
 
@@ -133,7 +133,7 @@ function initScene(DOM:any) {
 
     const stats = setStats()
 
-    const rederFps = setFpsClock(800)
+    const rederFps = setFpsClock(50)
     render()
 
     function render() {

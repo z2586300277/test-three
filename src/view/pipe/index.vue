@@ -1,10 +1,10 @@
 <template>
     <div ref="threeDom" class="threeDom" @mousedown.prevent.stop="modelClick" @mousemove="pointMove"></div>
     <div class="btn">
-        <el-button @click="clear">清除点</el-button>
-        <el-button @click="setCurve(CURVE)">根据曲线生成管道</el-button>
-        <el-button @click="stop=!stop">暂停</el-button>
-        <el-button @click="closeDraw=false">继续绘制</el-button>
+        <div><el-button @click="clear">清除点</el-button></div>
+        <div><el-button @click="setCurve(CURVE)">根据曲线生成管道</el-button></div>
+        <div> <el-button @click="stop=!stop">暂停</el-button></div>
+        <div><el-button @click="closeDraw=false">绘制/继续绘制</el-button></div>
     </div>
 </template>
 
@@ -111,7 +111,7 @@ function setCurve(curve:any) {
 // 生成曲线
 let CURVE:any
 let line:any = null 
-let closeDraw = false;
+let closeDraw = true;
 function modelClick (e: any) {
     if(closeDraw) return
     if(e.button === 2)  return closeDraw = true
@@ -179,9 +179,8 @@ function initScene(DOM:any) {
     renderer.setPixelRatio( window.devicePixelRatio * 2)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    renderer.setClearColor( 0x000000 )
+    renderer.setClearColor( 0xffffff )
     renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.localClippingEnabled = true;
     renderer.localClippingEnabled = true; // 剪裁
     DOM.appendChild(renderer.domElement)
     
@@ -207,9 +206,9 @@ function initScene(DOM:any) {
         MIXER.runAction(MIXER.actions[0], 8).play()
     })
 
-    loadGltf('http://guangfu/car.gltf', (o:any) => {
+    loadGltf('http://guangfu/zt.gltf', (o:any) => {
         pipeHead = o;
-        o.scale.set(100, 100 , 100);
+        // o.scale.set(100, 100 , 100);
         scene.add(o)
     })
     
@@ -257,5 +256,8 @@ function initScene(DOM:any) {
     position: absolute;
     right: 50px;
     top: 500px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
 }
 </style>
