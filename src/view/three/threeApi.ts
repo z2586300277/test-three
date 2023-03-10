@@ -702,3 +702,66 @@ export function mixerAnimation (object3d: any) {
     return { mixer, actions , runAction, mixerRender }
    
 }
+
+/* 对比世界坐标和本地坐标 */
+export function diffLocalAndWorldPosition(scene:any) {
+
+    const g = new THREE.BoxGeometry(10,10,10)
+    const m = new THREE.MeshBasicMaterial({ color: 'blue'})
+    let mesh = new THREE.Mesh(g, m);
+
+    // mesh的本地坐标设置为(50, 0, 0)
+    mesh.position.set(50, 0, 0);
+
+    let group = new THREE.Group();
+    // group本地坐标设置和mesh一样设置为(50, 0, 0)
+    // mesh父对象设置position会影响得到mesh的世界坐标
+    group.position.set(50, 0, 0);
+    group.add(mesh);
+    scene.add(group);
+
+    // .position属性获得本地坐标
+    // console.log('本地坐标',mesh.position);
+    // getWorldPosition()方法获得世界坐标
+    //该语句默认在threejs渲染的过程中执行,如果渲染之前想获得世界矩阵属性、世界位置属性等属性，需要通过代码更新
+    scene.updateMatrixWorld(true);
+    let worldPosition = new THREE.Vector3();
+    mesh.getWorldPosition(worldPosition);
+    console.log('世界坐标',worldPosition);
+
+}
+
+// 视角控制器
+export function angleViewControls(controls:any, type: any = 'deg') {
+
+    // 数学球
+    let spherical = new THREE.Spherical();
+
+    // 四元组 旋转
+    let quat = new THREE.Quaternion().setFromUnitVectors( controls.object.up,  new THREE.Vector3(0, 1, 0));
+
+    // 相机位置
+    let position = controls.object.position;
+    
+    //向量减法.sub()
+    let offset = new THREE.Vector3().copy(position).sub(controls.target);
+    
+    // 偏移旋转计算
+    spherical.setFromVector3(offset);
+
+    const mode:any = {
+        vertical: () =>  spherical.phi = 0.001,
+        horizontal: () =>  spherical.phi = Math.PI / 2,
+        deg: () => spherical.theta += Math.PI / 4,
+    }
+    mode[type]()
+
+    offset.setFromSpherical(spherical);
+    offset.applyQuaternion(quat);
+    
+    // 加法运算
+    position.copy(controls.target).add(offset);
+
+    controls.target.y = 0;
+    controls.update();
+}

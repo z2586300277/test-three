@@ -5,15 +5,15 @@
         <div><el-button @click="setCurve(CURVE)">根据曲线生成管道</el-button></div>
         <div> <el-button @click="stop=!stop">暂停</el-button></div>
         <div><el-button @click="closeDraw=false">绘制/继续绘制</el-button></div>
+        <div><el-button @click="angleViewControls(viewer.controls)">偏移</el-button></div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, setFpsClock , createTexture,createLine, loadGltf, curveMove,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
+import { shaderSky, setFpsClock , createTexture,createLine, loadGltf, curveMove,angleViewControls,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
-import { worldP} from './pipe' 
 
 const threeDom = ref()
 let viewer:any;
@@ -206,7 +206,7 @@ function initScene(DOM:any) {
         MIXER.runAction(MIXER.actions[0], 8).play()
     })
 
-    loadGltf('http://guangfu/zt.gltf', (o:any) => {
+    loadGltf('http://guangfu/car.gltf', (o:any) => {
         pipeHead = o;
         // o.scale.set(100, 100 , 100);
         scene.add(o)
