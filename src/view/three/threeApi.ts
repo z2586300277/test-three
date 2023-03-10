@@ -67,6 +67,43 @@ export const shaderSky = () => {
     return new THREE.Mesh(skyGeo, skyMat)
 }
 
+// 场景背景
+export function setSceneBackground(scene:any) {
+    const sceneTexture = new THREE.CubeTextureLoader()
+    .load([
+        'http://guangfu//scene/LF.jpg',
+        'http://guangfu//scene/RT.jpg',
+        'http://guangfu//scene/UP.jpg',
+        'http://guangfu//scene/DN.jpg',
+        'http://guangfu//scene/FR.jpg',
+        'http://guangfu//scene/BK.jpg',
+    ]);
+    sceneTexture.encoding = THREE.sRGBEncoding;
+    scene.background = sceneTexture;
+}
+
+//
+export function getMaterials(object3d:any) {
+
+    let materialArr:any = []
+        
+    object3d.traverse((c:any )=> {
+    
+      // 对象图层
+      c.layers.enable(1)
+
+      if ( c.isMesh ) { 
+        if( Array.isArray(c.material)) c.material.forEach((i:any) => materialArr.push(i))
+        else  materialArr.push(c.material);
+      }
+
+    });
+
+    let materials:Array<any> = [...new Set(materialArr)]
+
+    return materials
+}
+
 // 贴图地面
 export const floorPlane = (url: any) => {
     // 地面
