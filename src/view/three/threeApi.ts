@@ -10,6 +10,8 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { Flow } from 'three/examples/jsm/modifiers/CurveModifier.js';
+import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
+
 
 export function pointCube(point:any, size:number= 10, color:any = 'red') {
     
@@ -801,4 +803,24 @@ export function angleViewControls(controls:any, type: any = 'deg') {
 
     controls.target.y = 0;
     controls.update();
+}
+
+// 拖动控制器
+export function objectDragHelper(objects:any, camera:any, renderer:any , controls:any):any {
+
+    const dragControls = new DragControls(objects , camera, renderer.domElement );
+
+    dragControls.addEventListener( 'dragstart', function ( event:any ) {
+
+        controls.enabled = false
+
+    } );
+
+    dragControls.addEventListener( 'dragend', function ( event:any ) {
+
+        controls.enabled = true
+
+    } );
+
+    return dragControls
 }

@@ -5,7 +5,13 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted,watch,watchEffect , reactive} from 'vue';
 import * as THREE from 'three';
-import { shaderSky, floorPlane,setSceneBackground, setControls,getMaterials, loadFBX ,setFpsClock, setOutLinePass , setStats,  getWebGLMouse , clickIntersect,formatVertices, lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry} from './threeApi'
+import { 
+    shaderSky, floorPlane,setSceneBackground, 
+    setControls,getMaterials,objectDragHelper, 
+    loadFBX ,setFpsClock, setOutLinePass , setStats,
+    getWebGLMouse , clickIntersect,formatVertices, 
+    lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry
+} from './threeApi'
 import { loadTiles, TilesUpadate, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
@@ -14,6 +20,7 @@ let viewer:any;
 let point_arr:any = ref([])
 
 onMounted(() => viewer = initScene(threeDom.value))
+onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
 
 // 模型选中
 function modelClick (e: any) {
@@ -29,8 +36,7 @@ function modelClick (e: any) {
     }
 }
 
-
-
+/* 绘制技术 */
 function clickDraw(e: any) {
     const webGLMosue = getWebGLMouse(e)
     const intersect = clickIntersect(webGLMosue,viewer.camera, viewer.scene);
@@ -57,7 +63,7 @@ function clickDraw(e: any) {
     })
 }
 
-onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
+
 
 function initScene(DOM:any) {
 
@@ -66,11 +72,7 @@ function initScene(DOM:any) {
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
     scene.add(camera);
 
-    const renderer = new THREE.WebGLRenderer({
-        antialias:true,
-        alpha: true,
-        logarithmicDepthBuffer: true
-    })
+    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
     renderer.setPixelRatio( window.devicePixelRatio * 2)
     renderer.shadowMap.enabled = true
@@ -80,9 +82,7 @@ function initScene(DOM:any) {
     DOM.appendChild(renderer.domElement)
 
     const controls =  setControls(camera, renderer)
-    controls.addEventListener('change', () => {
-        if(controls.target.y < 0)  controls.target.y = 0
-    })
+    controls.addEventListener('change', () => (controls.target.y < 0)? controls.target.y = 0 : false)
 
     setSceneBackground(scene)
 
@@ -99,19 +99,24 @@ function initScene(DOM:any) {
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
 
         scene.add(object3d)
+        objectDragHelper([object3d], camera, renderer, controls)
     })
 
      loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
         
-        // getMaterials(object3d).forEach(i => {
-        //     i.color.set(0xFFFFFF*Math.random())
-        //     i.transparent = true
-        //     i.opacity = 0.3   
-        // })
+        getMaterials(object3d).forEach(i => {
+            i.color.set(0xFFFFFF*Math.random())
+            i.transparent = true
+            i.opacity = 0.25   
+        })
+
+        const folder = GUI.addFolder('模型[' + Date.now() + ']');
+        ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
                    
         scene.add(object3d)
 
      }))
+
     const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
