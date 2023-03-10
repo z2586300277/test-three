@@ -97,9 +97,9 @@ function initScene(DOM:any) {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
-
+        
         scene.add(object3d)
-        objectDragHelper([object3d], camera, renderer, controls)
+        
     })
 
      loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
@@ -112,12 +112,11 @@ function initScene(DOM:any) {
 
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
-                   
         scene.add(object3d)
 
      }))
 
-    const tilesRenderer = loadTiles(camera,renderer,scene, 'http://guangfu/tileset.json')
+    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json', (object3d:any) => scene.add(object3d)) 
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 

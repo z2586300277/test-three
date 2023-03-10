@@ -29,7 +29,7 @@ export const TilesUpadate = (tilesRenderer:any) =>{
     tilesRenderer.update();
 }
 
-export const loadTiles = (camera:any, renderer:any, scene:any, url:string) => {
+export const loadTiles = (camera:any, renderer:any, url:string, callback:any) => {
 
     // 读取3dtiles
     const tilesRenderer:any = new TilesRenderer( url )
@@ -42,20 +42,25 @@ export const loadTiles = (camera:any, renderer:any, scene:any, url:string) => {
     
     //加载时候修改材质
     tilesRenderer.onLoadModel = function(group:any) {
-      group.traverse((c:any )=> {
+
+        group.traverse((c:any )=> {
           
             if ( c.isMesh ) {
-               
+
                 // c.material = batchIdHighlightShaderMixin(c.material);
 
             }
         });
+
     };
+
+    tilesRenderer.onLoadTileSet = (g:any) => { }
 
     const model:any = new THREE.Group();
     model.add(tilesRenderer.group);
     model.rotation.set(5.5865, 0, 12.105 );
-    scene.add(model)
+    
+    callback(model)
 
     return tilesRenderer
 }
