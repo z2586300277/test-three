@@ -6,6 +6,8 @@
         <div> <el-button @click="stop=!stop">暂停</el-button></div>
         <div><el-button @click="closeDraw=false">绘制/继续绘制</el-button></div>
         <div><el-button @click="angleViewControls(viewer.controls)">偏移</el-button></div>
+        <div><el-button @click="actionStop">动画停止</el-button></div>
+        <div><el-button @click="reAction">重播</el-button></div>
     </div>
 </template>
 
@@ -21,7 +23,7 @@ let pointList:any = []
 let cubeArr:Array<any> = []
 let PIPE_ARR:any = [null,null,null]
 let PIPE_OPTION:any = {
-    clipSpeed: 0.03,
+    clipSpeed: 0.006,
     pipeRadius: 8
 }
 
@@ -34,6 +36,17 @@ const stop = ref(false)
 onMounted(() =>  viewer = initScene(threeDom.value))
 
 onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
+
+function actionStop() {
+    MIXER.Now.time = 0.2
+    MIXER.Now.paused = true
+}
+function reAction() {
+    pipeHead.position.set(...pointList[0])
+    PIPE_ARR.map((i:any) => viewer.scene.remove(i))
+    PIPE_ARR = [null,null,null]
+    setCurve(CURVE)
+}
 
 // 清除点
 function clear() {
@@ -53,7 +66,7 @@ function setCurve(curve:any) {
     PIPE_ARR[0].material = viewer.scene.getObjectByName('G033').material.clone()
     viewer.scene.add(PIPE_ARR[0])
     const pipeClip0 = getModelBox(PIPE_ARR[0]); // 生成管道切割动画控制器
-
+    pipeHead.position.set(...pointList.at(-1))
 
     /* 第一次动画组合 */
     curveMoveAnimation = curveMove(curve, pipeHead, PIPE_OPTION.clipSpeed, 'go',
@@ -192,7 +205,7 @@ function initScene(DOM:any) {
 
     const GUI:any = createGUI(THREE,scene,camera,controls)
     GUI.add(PIPE_OPTION,'pipeRadius').min(1).max(30).name('管子大小')
-    GUI.add(PIPE_OPTION,'clipSpeed').min(0.001).max(0.1).name('速度')
+    GUI.add(PIPE_OPTION,'clipSpeed').min(0.0001).max(0.01).name('速度')
 
     // 模型加载
     loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
@@ -203,12 +216,14 @@ function initScene(DOM:any) {
 
         // 模型动画
         MIXER = mixerAnimation(o)
-        MIXER.runAction(MIXER.actions[0], 8).play()
+        MIXER.runAction(MIXER.actions[0], 8)
+        MIXER.Now = MIXER.runAction(MIXER.actions[0], 8)
+        MIXER.Now.play()
     })
 
     loadGltf('http://guangfu/car.gltf', (o:any) => {
         pipeHead = o;
-        // o.scale.set(100, 100 , 100);
+        o.scale.set(100, 100 , 100);
         scene.add(o)
     })
     
