@@ -60,14 +60,15 @@ function clear() {
 function setCurve(curve:any) {
 
     viewer.outlinePass.selectedObjects = [pipeHead]
+    pipeHead.position.set(...pointList.at(0))
 
     /* 第一根管道 */
     PIPE_ARR[0] = createTube(curve, 'https://img2.baidu.com/it/u=2867681562,1586644503&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1677862800&t=ca5f653200ddc4f64f164b75d22b44c2', 0.85, PIPE_OPTION.pipeRadius / 4)
     PIPE_ARR[0].material = viewer.scene.getObjectByName('G033').material.clone()
     viewer.scene.add(PIPE_ARR[0])
     const pipeClip0 = getModelBox(PIPE_ARR[0]); // 生成管道切割动画控制器
-    pipeHead.position.set(...pointList.at(-1))
-
+    pipeClip0.clipFace_Way['_x'].clip.constant -= pipeClip0.clipFace_Way['_x'].width
+    
     /* 第一次动画组合 */
     curveMoveAnimation = curveMove(curve, pipeHead, PIPE_OPTION.clipSpeed, 'go',
         // 执行中
@@ -76,7 +77,7 @@ function setCurve(curve:any) {
             pipeClip0.clipFace_Way['_x'].clip.constant += diff_x 
             mesh.rotation.x += 1
             mesh.lookAt(p)
-            
+
         },
         function () {
 
@@ -192,6 +193,10 @@ function initScene(DOM:any) {
     renderer.setPixelRatio( window.devicePixelRatio * 2)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.gammaInput  = true; // 伽马校正
+    renderer.gammaOutput = true; // 伽马校正
+    renderer.gammaFactor = 2.2; //伽马校正
+    renderer.autoClear = true;
     renderer.setClearColor( 0xffffff )
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.localClippingEnabled = true; // 剪裁
