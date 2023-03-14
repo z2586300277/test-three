@@ -1,6 +1,6 @@
 <template>
 <div class="Layout">
-    <div class="Layout-Left">
+    <div class="Layout-Left" v-if="minShow">
         <Nav />
     </div>
     <div class="Layout-Right">
@@ -18,8 +18,10 @@
 <script lang="ts" setup>
 import Nav from './Nav.vue'
 import { useRoute } from 'vue-router';
-
+import { ref } from 'vue';
 const route = useRoute()
+const minShow = ref(true)
+document.onkeydown= (e) =>  e.code === 'Backquote' ? (minShow.value = !minShow.value) : ''
 // console.log(route)
 </script>
 
