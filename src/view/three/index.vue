@@ -1,5 +1,5 @@
 <template>
-    <div ref="threeDom" class="threeDom" @dblclick="clickDraw"></div>
+    <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
 </template>
 
 <script lang="ts" setup>
