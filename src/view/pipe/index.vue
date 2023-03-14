@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
 import * as THREE from 'three';
 import { shaderSky, setFpsClock , createTexture,createLine, loadGltf, curveMove,angleViewControls,modelReverse,floorPlane,mixerAnimation, doublePointOffsetRotate,pointCube, createTube,createCurve, setControls, loadFBX , setOutLinePass , setStats,  getWebGLMouse , clickIntersect,getModelBox} from '../three/threeApi'
 import { createGUI } from '../three/GUI'
@@ -34,8 +34,9 @@ let pipeHead:any
 const stop = ref(false)
 
 onMounted(() =>  viewer = initScene(threeDom.value))
-
 onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
+onActivated(() => { viewer.GUI.domElement.hidden = false })
+onDeactivated(() => viewer.GUI.domElement.hidden = true)
 
 function actionStop() {
     MIXER.Now.time = 0.2
@@ -268,7 +269,7 @@ function initScene(DOM:any) {
 
 <style lang="less" scoped>
 .threeDom {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     margin: auto;
 }

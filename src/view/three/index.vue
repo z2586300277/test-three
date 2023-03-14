@@ -1,9 +1,9 @@
 <template>
-    <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
+    <div ref="threeDom" class="threeDom" @dblclick="clickDraw"></div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted,watch,watchEffect , reactive} from 'vue';
+import { ref, onMounted, onUnmounted,watch,watchEffect , reactive,onActivated,onDeactivated } from 'vue';
 import * as THREE from 'three';
 import { 
     shaderSky, floorPlane,setSceneBackground, 
@@ -15,12 +15,14 @@ import {
 import { loadTiles, TilesUpadate, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
 
+onMounted(() => viewer = initScene(threeDom.value))
+onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
+onActivated(() => { viewer.GUI.domElement.hidden = false })
+onDeactivated(() => viewer.GUI.domElement.hidden = true)
+
 const threeDom = ref()
 let viewer:any;
 let point_arr:any = ref([])
-
-onMounted(() => viewer = initScene(threeDom.value))
-onUnmounted(() =>( viewer.GUI && viewer.GUI.destroy()))
 
 // 模型选中
 function modelClick (e: any) {
@@ -44,12 +46,10 @@ function clickDraw(e: any) {
         const { object, face, point} = intersect
         point_arr.value.push(point)
     }
-
     // 绘制点线面
     watch(point_arr.value,() => {
 
         const arr = formatVertices(point_arr.value)
-
         const points = pointsGeometry(arr)
         const line = lineGeometry(arr)
         const {indexGroup, faceGroup, uvGroup } = multShapeGroup(point_arr.value, 'indexFace', viewer.scene)
@@ -92,8 +92,10 @@ function initScene(DOM:any) {
     const GUI = createGUI(THREE,scene,camera,controls)
 
     loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
+
         object3d.rotation.y = (-180 * Math.PI) / 180;
         object3d.position.set(61.59, -6.1, -58.5);
+        
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
@@ -150,8 +152,8 @@ function initScene(DOM:any) {
 
 <style lang="less" scoped>
 .threeDom {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
-    margin: auto;
+    
 }
 </style>
