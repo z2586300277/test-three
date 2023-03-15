@@ -2,7 +2,7 @@
     <div class="flex">
         <div class="box">
             <el-button @click="getComponent('point')">绘制点</el-button>
-            <el-button @click="getComponent('webgl')">webgl</el-button>
+            <el-button @click="getComponent('shaderSky')">webgl</el-button>
             <el-button @click="getComponent('shader1')">shader</el-button>
         </div>
         <div class="cmpt">
@@ -16,7 +16,7 @@ import { defineAsyncComponent, shallowRef} from 'vue'
 
 let AsyncComp:any = shallowRef()
 const getComponent = (name:string) =>  AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
-getComponent('shader1')
+getComponent('shaderSky')
 </script>
 
 <style lang="less" scoped>

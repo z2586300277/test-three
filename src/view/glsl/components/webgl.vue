@@ -1,3 +1,0 @@
-<template>
-    webgl
-</template>
