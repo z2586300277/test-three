@@ -17,12 +17,21 @@
 
 <script lang="ts" setup>
 import Nav from './Nav.vue'
-import { useRoute } from 'vue-router';
 import { ref } from 'vue';
-const route = useRoute()
+import { useUserStore,  useAdminStore } from '../pinia'
+
 const minShow = ref(false)
-document.onkeydown= (e) =>  e.code === 'Backquote' ? (minShow.value = !minShow.value) : ''
-// console.log(route)
+const adminStore = useAdminStore()
+
+// 初始化加载权限
+const token = localStorage.getItem('token')
+if(token === 'admin') adminStore.$state.power = true
+
+// 键盘控制权限
+document.onkeydown =  (e) =>{
+    if (e.ctrlKey && e.code === 'Backquote') adminStore.$state.power = !adminStore.$state.power
+    else if(e.code === 'Backquote' &&  adminStore.$state.power)  minShow.value = !minShow.value
+}
 </script>
 
 <style lang="less" scoped>
