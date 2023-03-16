@@ -20,7 +20,7 @@ import Nav from './Nav.vue'
 import { useRoute } from 'vue-router';
 import { ref } from 'vue';
 const route = useRoute()
-const minShow = ref(true)
+const minShow = ref(false)
 document.onkeydown= (e) =>  e.code === 'Backquote' ? (minShow.value = !minShow.value) : ''
 // console.log(route)
 </script>
