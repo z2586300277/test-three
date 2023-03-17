@@ -9,6 +9,7 @@
             <el-button @click="getComponent('shader4')">shader星</el-button>
             <el-button @click="getComponent('shader5')">shader5</el-button>
             <el-button @click="getComponent('modelShader')">模型着色</el-button>
+            <el-button @click="getComponent('shaderWater')">shader水</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
@@ -27,7 +28,7 @@ const getComponent = (name:string) =>  {
     AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
     localStorage.setItem('glsl', name)
 }
-getComponent(localStorage.getItem('glsl') ?? 'modelShader')
+getComponent(localStorage.getItem('glsl') ?? 'shaderWater')
 
 </script>
 
