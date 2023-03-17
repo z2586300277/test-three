@@ -16,6 +16,7 @@ function init(DOM:any) {
     const scene = new THREE.Scene()
 
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    camera.position.set(10,10,10)
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
@@ -39,16 +40,21 @@ function init(DOM:any) {
             value: 1.0
         }
     }
-    const geometry = new THREE.PlaneGeometry( 2, 2, 2 );
+    const geometry = new THREE.BoxGeometry( 10, 10, 10 );
 
     var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: `
+        varying vec2 vUv;
+        
         void main() {
-            gl_Position = vec4( position, 1.0 );
+            vUv = uv;
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            gl_Position = projectionMatrix * mvPosition;
         }
         `,
         fragmentShader: `
+        varying vec2 vUv;
         precision highp float;
         uniform vec2 iResolution;
         uniform float iTime;
@@ -93,7 +99,7 @@ function init(DOM:any) {
         }
 
         void main() {
-            vec2 p = (gl_FragCoord.xy * 1.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
+            vec2 p = (gl_FragCoord.xy * 2.0 * vUv - iResolution.xy) / min(iResolution.x, iResolution.y);
 
             vec3 cPos = vec3(0.0,0.0, -3.0 * iTime);
             // vec3 cPos = vec3(0.3*sin(iTime*0.8), 0.4*cos(iTime*0.3), -6.0 * iTime);
@@ -128,7 +134,7 @@ function init(DOM:any) {
     var mesh = new THREE.Mesh( geometry, material );
     scene.add( mesh );
 
-    window.onresize = () => uniforms.u_resolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
+    window.onresize = () => uniforms.iResolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
     render()
     function render() {
         uniforms.iTime.value += 0.03
@@ -140,7 +146,7 @@ function init(DOM:any) {
 
 <style lang="less" scoped>
 .threeBox {
-    width: 800px;
-    height: 450px;
+    width: 100%;
+    height: 100%;
 }
 </style>

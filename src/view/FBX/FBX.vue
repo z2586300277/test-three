@@ -4,8 +4,8 @@
 
 <script lang="ts" setup>
 import * as THREE from 'three'
-import { ref , onMounted} from 'vue';
-import { setControls , loadFBX, loaderManager} from '../three/threeApi';
+import { ref , onMounted, onUnmounted} from 'vue';
+import { setControls , loadFBX, loaderManager } from '../three/threeApi';
 import { createGUI } from '../three/GUI'
 
 const threeBox = ref()
@@ -31,11 +31,12 @@ function init(DOM:any) {
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
 
-    createGUI(THREE,scene,camera,controls)
+    const GUI = createGUI(THREE,scene,camera,controls)
+    onUnmounted(() => GUI.destroy())
 
     const manager = loaderManager()
-
-    manager.onProgress = (u:any,i:any,t:any) => (i/t ===1)?loading.value = false : null;
+    
+    manager.onProgress = (u:any,i:any,t:any) => (i/t ===1)?loading.value = false : console.log(i/t);
     
     loadFBX('http://guangfu/shexian/shexian.FBX', (o:any) => {
            scene.add(o)

@@ -16,6 +16,7 @@ function init(DOM:any) {
     const scene = new THREE.Scene()
 
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    camera.position.set(10,10,10)
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })

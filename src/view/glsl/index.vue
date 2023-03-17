@@ -22,8 +22,11 @@ import { useUserStore,  useAdminStore } from '../../pinia'
 const adminStore = useAdminStore()
 
 let AsyncComp:any = shallowRef()
-const getComponent = (name:string) =>  AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
-getComponent('shader5')
+const getComponent = (name:string) =>  {
+    AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
+    localStorage.setItem('glsl', name)
+}
+getComponent(localStorage.getItem('glsl') ?? 'point')
 
 </script>
 
