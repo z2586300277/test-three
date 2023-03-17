@@ -7,6 +7,7 @@
             <el-button @click="getComponent('shader2')">shader色元</el-button>
             <el-button @click="getComponent('shader3')">shader案例</el-button>
             <el-button @click="getComponent('shader4')">shader星</el-button>
+            <el-button @click="getComponent('shader5')">shader5</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
@@ -22,7 +23,7 @@ const adminStore = useAdminStore()
 
 let AsyncComp:any = shallowRef()
 const getComponent = (name:string) =>  AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
-getComponent('point')
+getComponent('shader5')
 
 </script>
 

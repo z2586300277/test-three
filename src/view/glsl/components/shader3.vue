@@ -221,7 +221,7 @@ function init(DOM:any) {
         }
         
         void main() {
-            vec2 p = (gl_FragCoord.xy * 2. - iResolution.xy) / min(iResolution.x, iResolution.y);
+            vec2 p = (gl_FragCoord.xy * 1. - iResolution.xy) / min(iResolution.x, iResolution.y);
             vec3 ro = vec3(0., -0.2 ,iTime * 4.);
             vec3 ray = normalize(vec3(p, 1.5));
             ray.xy = ray.xy * rot(sin(iTime * .03) * 5.);
@@ -262,13 +262,13 @@ function init(DOM:any) {
     // 帧率显示
     const stats = setStats()
 
-    const fpsRender = setFpsClock(60)
+    const fpsRender = setFpsClock(140)
 
     render()
     function render() {
         fpsRender(() => {
             stats && stats.update()
-            uniforms.iTime.value += 0.01;
+            uniforms.iTime.value += 0.05;
             renderer.render(scene,camera)
         })
         requestAnimationFrame(render)
@@ -279,7 +279,7 @@ function init(DOM:any) {
 
 <style lang="less" scoped>
 .threeBox {
-    width: 100%;
-    height: 100%;
+    width: 800px;
+    height: 800px;
 }
 </style>

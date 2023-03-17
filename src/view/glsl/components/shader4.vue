@@ -39,8 +39,8 @@ function init(DOM:any) {
             value: 1.0
         }
     }
+    const geometry = new THREE.PlaneGeometry( 2, 2, 2 );
 
-    var geometry = new THREE.PlaneGeometry( 2, 2 );
     var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: `
@@ -93,7 +93,7 @@ function init(DOM:any) {
         }
 
         void main() {
-            vec2 p = (gl_FragCoord.xy * 2.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
+            vec2 p = (gl_FragCoord.xy * 1.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
 
             vec3 cPos = vec3(0.0,0.0, -3.0 * iTime);
             // vec3 cPos = vec3(0.3*sin(iTime*0.8), 0.4*cos(iTime*0.3), -6.0 * iTime);
@@ -131,7 +131,7 @@ function init(DOM:any) {
     window.onresize = () => uniforms.u_resolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
     render()
     function render() {
-        uniforms.iTime.value += 0.05
+        uniforms.iTime.value += 0.03
         renderer.render(scene,camera)
         requestAnimationFrame(render)
     }
@@ -140,7 +140,7 @@ function init(DOM:any) {
 
 <style lang="less" scoped>
 .threeBox {
-    width: 100%;
-    height: 100%;
+    width: 800px;
+    height: 450px;
 }
 </style>
