@@ -39,16 +39,22 @@ function init(DOM:any) {
             value: 0.0
         }
     }
-    const geometry = new THREE.PlaneGeometry( 2, 2, 2 );
+    const geometry = new THREE.BoxGeometry( 10, 10, 10 );
 
     var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: `
+        varying vec2 vUv;
+
         void main() {
-            gl_Position = vec4( position, 1.0 );
+            vUv = uv;
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            gl_Position = projectionMatrix * mvPosition;
         }
         `,
         fragmentShader: `
+        varying vec2 vUv;
+
         uniform vec2 r;
         uniform float t;
 
@@ -57,7 +63,7 @@ function init(DOM:any) {
             float l,z=t;
             for(int i=0;i<3;i++) {
                 vec2 uv,p=gl_FragCoord.xy/r/2.0;
-                uv=p;
+                uv=p +  2.0 * vUv;
                 p-=.5;
                 p.x*=r.x/r.y;
                 z+=.07;
@@ -74,7 +80,7 @@ function init(DOM:any) {
     var mesh = new THREE.Mesh( geometry, material );
     scene.add( mesh );
 
-    window.onresize = () => uniforms.u_resolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
+    window.onresize = () => uniforms.r.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
     render()
     function render() {
         uniforms.t.value += 0.03
@@ -86,7 +92,7 @@ function init(DOM:any) {
 
 <style lang="less" scoped>
 .threeBox {
-    width: 800px;
-    height: 450px;
+    width: 100%;
+    height: 100%;
 }
 </style>
