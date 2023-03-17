@@ -44,6 +44,10 @@ const routeList:any = ref(
             name: '光伏',
             path: '/three'
         },
+        {
+            name: 'FBX',
+            path: '/FBX'
+        },
 
     ]
   }

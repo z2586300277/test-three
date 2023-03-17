@@ -134,9 +134,33 @@ export function setControls(camera: any, renderer: any) {
     return controls
 }
 
-export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', callback: any) => {
+// 模型加载管理器
+export const loaderManager =  () => {
+
+    const manager = new THREE.LoadingManager();
+
+    manager.onStart = function ( url:any, itemsLoaded:any, itemsTotal:any ) {
+
+    };
+
+    manager.onLoad = function ( ) {
+
+    };
+
+    manager.onProgress = function ( url:any, itemsLoaded:any, itemsTotal:any ) {
+
+    };
+
+    manager.onError = function ( url:any ) {
+
+    };
+
+    return manager
+}
+
+export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', callback: any, manager?:any) => {
     //加载器
-    const loader = new FBXLoader();
+    const loader = new FBXLoader(manager);
 
     //加载模型
     loader.load(url, (object3d: any) => {
@@ -172,7 +196,9 @@ export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', cal
 
         callback(object3d)
 
-    })
+    },(xhr) =>{/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ) */})
+
+    return loader
 }
 
 export const loadGltf = (url:string = '', callback: any = () => {}) => {
@@ -188,7 +214,7 @@ export const loadGltf = (url:string = '', callback: any = () => {}) => {
         (gltf:any) =>  callback(gltf.scene),
 
         //加载
-        (p) =>  {},
+        (xhr) =>  {/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ); */},
 
         //加载失败
         (e) => {}

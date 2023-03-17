@@ -22,6 +22,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/vector',
         component: () => import('../view/vector/vector.vue')
+      },
+      {
+        path: '/FBX',
+        component: () => import('../view/FBX/FBX.vue')
       }
     ]
   },
