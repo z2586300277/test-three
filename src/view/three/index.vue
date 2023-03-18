@@ -153,7 +153,7 @@ function initScene(DOM:any) {
 <style lang="less" scoped>
 .threeDom {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     
 }
 </style>

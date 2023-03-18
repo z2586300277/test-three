@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import * as THREE from 'three'
-import { ref , onMounted, onUnmounted} from 'vue';
+import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
 import { setControls , loadFBX, loaderManager } from '../three/threeApi';
 import { createGUI } from '../three/GUI'
 
@@ -32,13 +32,15 @@ function init(DOM:any) {
     scene.add(axes)
 
     const GUI = createGUI(THREE,scene,camera,controls)
+    onActivated(() => GUI.domElement.hidden = false )
+    onDeactivated(() =>GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
     const manager = loaderManager()
     
     manager.onProgress = (u:any,i:any,t:any) => (i/t ===1)?loading.value = false : console.log(i/t);
     
-    loadFBX('http://guangfu/shexian/shexian.FBX', (o:any) => {
+    loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
            scene.add(o)
     },manager)
 

@@ -60,7 +60,7 @@ const routeList:any = ref(
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   user-select: none;
   width: 210px;
-  height: 100vh;
+  height: 100%;
   border: none;
   color: white;
   .el-menu-item{
