@@ -1,6 +1,6 @@
 <template>
     <div class="flex">
-        <div class="box" v-if="adminStore.$state.power">
+        <div class="box" v-if="!adminStore.$state.power">
             <el-button @click="getComponent('point')">webgl绘制点</el-button>
             <el-button @click="getComponent('shaderSky')">shader天空</el-button>
             <el-button @click="getComponent('shader1')">shader闪烁</el-button>
@@ -11,6 +11,7 @@
             <el-button @click="getComponent('modelShader')">模型着色</el-button>
             <el-button @click="getComponent('shaderWater')">shader水</el-button>
             <el-button @click="getComponent('shaderMountain')">shader山</el-button>
+            <el-button @click="getComponent('shaderTree')">shaderTree</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>

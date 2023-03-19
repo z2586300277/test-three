@@ -28,8 +28,6 @@ let LayoutHeight = ref(LayoutSize.value * 10 + 'vh')
 let LayoutWidth = ref(LayoutSize.value * 10+'vw')
 let LayoutBack = ref(localStorage.getItem('LayoutBack') || '#123456')
 
-
-console.log( LayoutSize.value)
 // 初始化加载权限
 const token = localStorage.getItem('token')
 if(token === 'admin') adminStore.$state.power = true
