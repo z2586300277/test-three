@@ -92,6 +92,7 @@ export function batchIdHighlightShaderMixin(basicMaterial:any) {
 				vec4( diffuse, opacity );
 			`
 		);
+        // console.log(shader.fragmentShader)
      }
 
      return uniforms

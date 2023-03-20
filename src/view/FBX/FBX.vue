@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls , loadFBX, loaderManager } from '../three/threeApi';
+import { setControls , loadFBX, loaderManager ,getMaterials} from '../three/threeApi';
 import { createGUI } from '../three/GUI'
 
 const threeBox = ref()
@@ -42,6 +42,11 @@ function init(DOM:any) {
     
     loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
            scene.add(o)
+           const materials = getMaterials(o)
+            materials.map( basicMaterial => basicMaterial.onBeforeCompile =(shader:any) => {
+                // console.log(shader.fragmentShader)
+            })
+             
     },manager)
 
     render()
