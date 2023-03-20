@@ -1,12 +1,6 @@
 import * as THREE from 'three'
 import { TilesRenderer } from '3d-tiles-renderer';
-import {
-	UniformsUtils,
-	Color,
-    ShaderMaterial,
-    ShaderLib
-} from 'three'
-import { batchIdHighlightShaderMixin } from './glsl'
+
 
 let box = new THREE.Box3();
 let sphere = new THREE.Sphere();
@@ -47,7 +41,7 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any) =>
           
             if ( c.isMesh ) {
 
-                // c.material = batchIdHighlightShaderMixin(c.material);
+                 c.uniformHigh = batchIdHighlightShaderMixin(c.material);
 
             }
         });
@@ -63,6 +57,44 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any) =>
     callback(model)
 
     return tilesRenderer
+}
+
+export function batchIdHighlightShaderMixin(basicMaterial:any) {
+    const uniforms = {
+        highlightedBatchId: { value: - 1 },
+    }
+
+    basicMaterial.onBeforeCompile = (shader:any)=>{
+        shader.uniforms.highlightedBatchId = uniforms.highlightedBatchId
+        shader.vertexShader =
+		`
+			attribute float _batchid;
+			varying float batchid;
+		` +
+		shader.vertexShader.replace(
+			/#include <uv_vertex>/,
+			`
+			#include <uv_vertex>
+			batchid = _batchid;
+			`
+		);
+	    shader.fragmentShader =
+		`
+			varying float batchid;
+			uniform float highlightedBatchId;
+		` +
+		shader.fragmentShader.replace(
+			/vec4 diffuseColor = vec4\( diffuse, opacity \);/,
+			`
+			vec4 diffuseColor =
+				abs( batchid - highlightedBatchId ) < 0.5 ?
+				vec4( 1.,1.,0., 0. ) :
+				vec4( diffuse, opacity );
+			`
+		);
+     }
+
+     return uniforms
 }
 
 export function TilesBatchTable(face:any,object:any) {
@@ -88,13 +120,15 @@ export function TilesBatchTable(face:any,object:any) {
         const g = object.geometry;
         const p = g.getAttribute('position');
     
-        const targetP = new THREE.Vector3(p.getX(hoveredBatchid), p.getY(hoveredBatchid), p.getZ(hoveredBatchid));
-        // targetP.applyMatrix4(object.matrixWorld);
-        console.log(object.material.vertexShader)
-        return  { name , hoveredBatchid, targetP};
-                
-            
+
+        // 位置点表遍历
+        const index = batchidAttr.array.findIndex((i:any,k:any) => batchidAttr.getX(k) === hoveredBatchid)
+     
+        const targetP = new THREE.Vector3(p.getX(index), p.getY(index), p.getZ(index));
+        targetP.applyMatrix4(object.matrixWorld);
         
+        return  { name , hoveredBatchid, targetP};
+                              
         
     }
     else return null;

@@ -6,7 +6,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '',
     component: Layout,
-    redirect: '/glsl',
+    redirect: localStorage.getItem('path') || '/glsl',
     children: routers.map(i => getRoute(i))
   },
   

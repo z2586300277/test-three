@@ -14,7 +14,7 @@
         <span>{{item0.name}}</span>
       </template>
         <!-- 二级导航 -->
-        <el-menu-item v-for="item,k in item0.children" :key="k" :index="k0+'-'+k" @click="$router.push(item.path)">
+        <el-menu-item v-for="item,k in item0.children" :key="k" :index="k0+'-'+k" @click="goRouter(item)">
             <template #title>
                 {{item.name}}
           </template>
@@ -27,32 +27,28 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { routers } from '../config/config'
+
+const router = useRouter()
 const routeList:any = ref(
   [
   {
     name: '案例',
-    children: [
-        {
-            name: 'glsl',
-            path: '/glsl'
-        },
-        {
-            name: '管道',
-            path: '/pipe'
-        },
-        {
-            name: '光伏',
-            path: '/three'
-        },
-        {
-            name: 'FBX',
-            path: '/FBX'
-        },
-
-    ]
+    children: routers.map(i => {
+      const r = i.split('——')
+      return {
+        name: r[0],
+        path: r[1]
+      }
+    })
   }
 ]
 )
+function goRouter(item:any) {
+  localStorage.setItem('path', item.path)
+  router.push(item.path)
+}
 </script>
 
 <style lang="less" scoped>

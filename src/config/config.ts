@@ -5,4 +5,5 @@ export const routers: Array<any> = [
     'glsl——/glsl——/glsl/index——着色器',
     'FBX——/FBX——/FBX/FBX——FBX加载',
     'vector——/vector——/vector/vector——向量',
+    'tilesShader——/tilesShader——/tilesShader/tilesShader——tiles着色器',
 ]
