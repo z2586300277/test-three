@@ -128,8 +128,8 @@ export function setControls(camera: any, renderer: any) {
     controls.enableDamping = true;
     controls.dampingFactor = 0.1;
     controls.minZoom = 1000;
-    // controls.minDistance = 25;
-    // controls.maxDistance = 500;
+    controls.minDistance = 10;
+    controls.maxDistance = 5000;
     controls.maxPolarAngle = Math.PI / 2;
     return controls
 }

@@ -139,7 +139,7 @@ function init(DOM:any) {
     function render() {
         uniforms.iTime.value += 0.03
         renderer.render(scene,camera)
-        requestAnimationFrame(render)
+        threeBox.value && requestAnimationFrame(render)
     }
 }
 </script>

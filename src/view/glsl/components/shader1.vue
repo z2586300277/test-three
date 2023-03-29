@@ -61,7 +61,7 @@ function init(DOM:any) {
     function render() {
         uniforms.u_time.value += 0.005;
         renderer.render(scene,camera)
-        requestAnimationFrame(render)
+        threeBox.value && requestAnimationFrame(render)
     }
 }
 </script>

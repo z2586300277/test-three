@@ -99,7 +99,7 @@ function initScene(DOM:any) {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.position, i).min(-50).max(50).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(object3d.scale, i).min(0).max(10).name(i + '缩放'));
-        // objectDragHelper([object3d],camera, renderer,controls)
+        objectDragHelper([object3d],camera, renderer,controls)
         scene.add(object3d)
         
     })

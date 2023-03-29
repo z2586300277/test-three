@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, shallowRef} from 'vue'
+import { defineAsyncComponent, shallowRef, ref} from 'vue'
 import { useUserStore,  useAdminStore } from '../../pinia'
 
 const adminStore = useAdminStore()
