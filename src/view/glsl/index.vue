@@ -8,6 +8,7 @@
             <el-button @click="getComponent('shader3')">shader案例</el-button>
             <el-button @click="getComponent('shader4')">shader星</el-button>
             <el-button @click="getComponent('shader5')">shader5</el-button>
+            <el-button @click="getComponent('shader6')">shader画布</el-button>
             <el-button @click="getComponent('modelShader')">模型着色</el-button>
             <el-button @click="getComponent('shaderWater')">shader水</el-button>
             <el-button @click="getComponent('shaderMountain')">shader山</el-button>

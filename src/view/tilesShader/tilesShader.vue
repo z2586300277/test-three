@@ -36,7 +36,7 @@ function init(DOM:any) {
     onDeactivated(() =>GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
-    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json',(object3d:any) => scene.add(object3d)) 
+    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json',(object3d:any) => scene.add(object3d),DOM) 
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 
@@ -60,7 +60,12 @@ function init(DOM:any) {
             // tiles 
             const tilesBatch = TilesBatchTable(face, object)
             if ( object && tilesBatch ){
-                lastModel && (lastModel.uniformHigh.highlightedBatchId.value = -1)
+
+                // 旧的物体着色器数值重置
+                if(lastModel) {
+                    lastModel.uniformHigh.highlightedBatchId.value = -1
+                    lastModel.uniformHigh.time.value = 0.1
+                }
                 object.uniformHigh.highlightedBatchId.value =  tilesBatch.hoveredBatchid
                 lastModel = object
             }
@@ -71,6 +76,7 @@ function init(DOM:any) {
         rederFps(() => {
             stats && stats.update()
             tilesRenderer && TilesUpadate(tilesRenderer)
+            lastModel && (lastModel.uniformHigh.time.value +=0.1)
             renderer.render(scene,camera)
             if(outlinePass.selectedObjects.length > 0) Composer.render() 
             else  renderer.render(scene, camera)

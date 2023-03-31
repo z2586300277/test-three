@@ -23,7 +23,7 @@ export const TilesUpadate = (tilesRenderer:any) =>{
     tilesRenderer.update();
 }
 
-export const loadTiles = (camera:any, renderer:any, url:string, callback:any) => {
+export const loadTiles = (camera:any, renderer:any, url:string, callback:any, DOM:any) => {
 
     // 读取3dtiles
     const tilesRenderer:any = new TilesRenderer( url )
@@ -41,7 +41,7 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any) =>
           
             if ( c.isMesh ) {
 
-                 c.uniformHigh = batchIdHighlightShaderMixin(c.material);
+                 c.uniformHigh = batchIdHighlightShaderMixin(c.material,DOM);
 
             }
         });
@@ -59,13 +59,24 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any) =>
     return tilesRenderer
 }
 
-export function batchIdHighlightShaderMixin(basicMaterial:any) {
+export function batchIdHighlightShaderMixin(basicMaterial:any, DOM:any) {
     const uniforms = {
         highlightedBatchId: { value: - 1 },
+        time: {
+            type: "f",
+            value: 0.0
+        },
+        resolution: {
+            type: 'v2',
+            value: new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
+        }
     }
 
     basicMaterial.onBeforeCompile = (shader:any)=>{
+        // 变量传递
         shader.uniforms.highlightedBatchId = uniforms.highlightedBatchId
+        shader.uniforms.time = uniforms.time
+        shader.uniforms.resolution = uniforms.resolution
         shader.vertexShader =
 		`
 			attribute float _batchid;
@@ -82,17 +93,17 @@ export function batchIdHighlightShaderMixin(basicMaterial:any) {
 		`
 			varying float batchid;
 			uniform float highlightedBatchId;
+            uniform float time; 
 		` +
 		shader.fragmentShader.replace(
 			/vec4 diffuseColor = vec4\( diffuse, opacity \);/,
 			`
 			vec4 diffuseColor =
 				abs( batchid - highlightedBatchId ) < 0.5 ?
-				vec4( 1.,1.,0., 0. ) :
+                vec41.,1.,0.0,1.0) :
 				vec4( diffuse, opacity );
 			`
 		);
-        // console.log(shader.fragmentShader)
      }
 
      return uniforms
