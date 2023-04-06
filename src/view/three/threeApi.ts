@@ -93,7 +93,7 @@ export function getMaterials(object3d:any) {
     object3d.traverse((c:any )=> {
     
       // 对象图层
-      c.layers.enable(1)
+      c.layers.enable(3)
 
       if ( c.isMesh ) { 
         if( Array.isArray(c.material)) c.material.forEach((i:any) => materialArr.push(i))

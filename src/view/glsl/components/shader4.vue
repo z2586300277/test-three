@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted} from 'vue';
-import { setControls } from '../../three/threeApi';
+import { setControls , createTexture} from '../../three/threeApi';
 
 const threeBox = ref()
 
@@ -41,9 +41,14 @@ function init(DOM:any) {
         }
     }
     const geometry = new THREE.BoxGeometry( 10, 10, 10 );
+    const material1 =  new THREE.MeshBasicMaterial({
+	  map: createTexture('https://img2.baidu.com/it/u=1042245905,2107164082&fm=253&fmt=auto&app=138&f=JPEG?w=1333&h=500'),
+      side:THREE.DoubleSide,
+	}); 
 
     var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
+        side:THREE.DoubleSide,
         vertexShader: `
         varying vec2 vUv;
         
@@ -131,7 +136,7 @@ function init(DOM:any) {
         `
     } );
 
-    var mesh = new THREE.Mesh( geometry, material );
+    var mesh = new THREE.Mesh( geometry, [material ,material1,material1,material1,material,material1,material1] );
     scene.add( mesh );
 
     window.onresize = () => uniforms.iResolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)

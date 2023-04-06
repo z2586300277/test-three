@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted} from 'vue';
-import { setControls } from '../../three/threeApi';
+import { setControls , createTexture} from '../../three/threeApi';
 
 const threeBox = ref()
 
@@ -38,7 +38,8 @@ function init(DOM:any) {
         t: {
             type: 'f',
             value: 0.0
-        }
+        },
+        colorTexture: { value: createTexture('https://img2.baidu.com/it/u=1042245905,2107164082&fm=253&fmt=auto&app=138&f=JPEG?w=1333&h=500') }
     }
     const geometry = new THREE.BoxGeometry( 10, 10, 10 );
 
@@ -58,6 +59,7 @@ function init(DOM:any) {
 
         uniform vec2 r;
         uniform float t;
+        uniform sampler2D colorTexture;
 
         void main(){
             vec3 c;
@@ -72,7 +74,9 @@ function init(DOM:any) {
                 uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z-z));
                 c[i]=.01/length(mod(uv,1.)-.5);
             }
-            gl_FragColor=vec4(c/l,t);
+            vec3 color = texture2D( colorTexture, vUv ).rgb;
+            gl_FragColor=vec4(c/l * color * (4., 4.,4.),t);
+
         }
 
         `
