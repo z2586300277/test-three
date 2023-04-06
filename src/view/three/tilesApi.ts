@@ -40,7 +40,7 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any, DO
         group.traverse((c:any )=> {
           
             if ( c.isMesh ) {
-
+                 c.material.transparent = true;
                  c.uniformHigh = batchIdHighlightShaderMixin(c.material,DOM);
 
             }
@@ -100,7 +100,7 @@ export function batchIdHighlightShaderMixin(basicMaterial:any, DOM:any) {
 			`
 			vec4 diffuseColor =
 				abs( batchid - highlightedBatchId ) < 0.5 ?
-                vec41.,1.,0.0,1.0) :
+                vec4(0.,0.,0.0,0.0) :
 				vec4( diffuse, opacity );
 			`
 		);
