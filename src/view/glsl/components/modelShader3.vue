@@ -54,13 +54,24 @@ function init(DOM:any) {
 
             const materials = getMaterials(object3d)
             
-            materials.map( basicMaterial => {
+            materials.map( basicMaterial => {            
                    /* 材质加工 */
                     basicMaterial.onBeforeCompile = (shader:any,renderer:any)=>{
                     shader.uniforms.iResolution = uniforms.iResolution
                     shader.uniforms.iTime = uniforms.iTime
-                    //    console.log(shader.fragmentShader)
-                      shader.vertexShader = `
+                    // 判断携带自身贴图还是颜色
+                    shader.uniforms.colorOrMap = {
+                        value:  basicMaterial.map ? 1 : 0
+                    }
+                    shader.uniforms.materialColor = {
+                        type: 'v3',
+                        value:  new THREE.Vector3(basicMaterial.color.r,basicMaterial.color.g,basicMaterial.color.b)
+                    }
+                    shader.uniforms.colorTexture = {
+                        value:  basicMaterial.map
+                    }
+
+                    shader.vertexShader = `
                         varying vec2 vUv;
                             void main() {
                                 vUv = uv;
@@ -69,13 +80,13 @@ function init(DOM:any) {
                             }
                         `,
                     shader.fragmentShader = `
-                        // 屏幕尺寸
                         varying vec2 vUv;
                         precision lowp float;
                         uniform vec2 iResolution;
                         uniform float iTime;
-                        const float TAU = 6.28318530718;
-                        const int MAX_ITER = 5;
+                        uniform float colorOrMap;
+                        uniform vec3 materialColor;
+                        uniform sampler2D colorTexture;
                     
                                     
                         vec3 hsv2rgb( vec3 c ){
@@ -177,7 +188,11 @@ function init(DOM:any) {
                             col += vec3(.8*yy)*.3*v3;
                             col += vec3(.2*(1.-yy))*.3*v3;
                             
-                            gl_FragColor = vec4(col,1.0);
+                            vec3 textureColor = texture2D( colorTexture, vUv ).rgb;
+                            vec3 fragColor =  col * (10.,10.,10.);
+                            if( colorOrMap > 0.5 ) fragColor = fragColor * textureColor;
+                            else fragColor = fragColor * materialColor;
+                            gl_FragColor = vec4(fragColor ,1.0);
                         }
                         `
                     }
