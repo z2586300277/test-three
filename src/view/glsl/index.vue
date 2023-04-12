@@ -16,6 +16,7 @@
             <el-button @click="getComponent('shaderMountain')">shader山</el-button>
             <el-button @click="getComponent('shaderTree')">shaderTree</el-button>
             <el-button @click="getComponent('lightShader')">光照shgader</el-button>
+            <el-button @click="getComponent('sLightShader')">光照材质特效融合</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
