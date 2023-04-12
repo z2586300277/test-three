@@ -5,14 +5,14 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls ,createTexture, loadFBX, loaderManager ,getMaterials} from '../../three/threeApi';
+import { setControls ,asyncCreateTexture,createTexture, loadFBX, loaderManager ,getMaterials} from '../../three/threeApi';
 import { createGUI } from '../../three/GUI'
 
 const threeBox = ref()
 
 onMounted(() => init(threeBox.value))
 
-function init(DOM:any) {
+async function init(DOM:any) {
 
     const scene = new THREE.Scene()
 
@@ -32,79 +32,69 @@ function init(DOM:any) {
     scene.add(axes)
 
     const GUI = createGUI(THREE,scene,camera,controls)
+    GUI.add( {fn:() => {
+        shader.uniforms.colorTexture.value = createTexture('https://img0.baidu.com/it/u=1409096983,2384906094&fm=253&fmt=auto&app=138&f=JPEG?w=867&h=500')
+    }}, 'fn').name('切换网络材质')
+    
     onActivated(() => GUI.domElement.hidden = false )
     onDeactivated(() =>GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
-    
-    // loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
-    //        scene.add(o)
-    // })
-
-    const uniforms:any = {
-        r: {
-            type: 'v2',
-            value: new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
-        },
-        t: {
-            type: 'f',
-            value: 0.0
-        },
-        colorTexture: { value: createTexture('https://img2.baidu.com/it/u=1042245905,2107164082&fm=253&fmt=auto&app=138&f=JPEG?w=1333&h=500') }
-    }
+    // 着色器 根据uv 贴合 texture 参数无效  异步解决警告
+    const texture = await asyncCreateTexture('https://img2.baidu.com/it/u=639935574,2199430260&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=494')
+ 
     const geometry = new THREE.BoxGeometry( 10, 10, 10 );
-
-    var material = new THREE.ShaderMaterial( {
-        // uniforms: THREE.UniformsUtils.merge( [
-        //     THREE.ShaderLib[ 'standard' ].uniforms,
-        //     uniforms
-        // ]),
-        uniforms,
-        vertexShader: `
-        varying vec2 vUv;
-
-        void main() {
-            vUv = uv;
-            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            gl_Position = projectionMatrix * mvPosition;
-        }
-        `,
-        fragmentShader: `
-        varying vec2 vUv;
-
-        uniform vec2 r;
-        uniform float t;
-        uniform sampler2D colorTexture;
-
-        void main(){
-            vec3 c;
-            float l,z=t;
-            for(int i=0;i<3;i++) {
-                vec2 uv,p=gl_FragCoord.xy/r/2.0;
-                uv=p +  2.0 * vUv;
-                p-=.5;
-                p.x*=r.x/r.y;
-                z+=.07;
-                l=length(p);
-                uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z-z));
-                c[i]=.01/length(mod(uv,1.)-.5);
+    
+    // 使用 shader 库中的phong材质 进行修改
+    const shader = {
+        uniforms: THREE.UniformsUtils.merge( [
+            THREE.ShaderLib[ 'phong' ].uniforms,
+            {
+                r: {
+                    type: 'v2',
+                    value: new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
+                },
+                t: {
+                    type: 'f',
+                    value: 0.0
+                },
+                colorTexture: { value: texture }
             }
-            vec3 color = texture2D( colorTexture, vUv ).rgb;
-            gl_FragColor=vec4(c/l * color ,t);
+        ]),
+        vertexShader: THREE.ShaderLib[ 'phong' ].vertexShader,
+        fragmentShader: THREE.ShaderLib[ 'phong' ].fragmentShader,
+    }
 
-        }
+    shader.vertexShader = shader.vertexShader.replace(/#include <common>/,`
+        varying vec2 vUv;
+        #include <common>    
+    `)
+    
+    shader.vertexShader = shader.vertexShader.replace('void main() {',`
+        void main() {
+        vUv = uv; 
+    `)
 
-        `
-    } );
-    // material.lights = true
-    // console.log(THREE.ShaderLib,material.uniforms)
+    shader.fragmentShader = shader.fragmentShader.replace(/#include <common>/,`
+        varying vec2 vUv;
+        uniform sampler2D colorTexture;
+        #include <common>    
+    `)
 
+    shader.fragmentShader = shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );',`
+      vec3 color = texture2D( colorTexture, vUv ).rgb;
+      vec4 diffuseColor = vec4( diffuse * color, opacity );
+    `)
+
+    const material = new THREE.ShaderMaterial( shader );
+
+    material.lights = true
+    
     var mesh = new THREE.Mesh( geometry, material );
     scene.add( mesh );
 
     render()
     function render() {
-        uniforms.t.value += 0.03
         renderer.render(scene,camera)
         requestAnimationFrame(render)
     }

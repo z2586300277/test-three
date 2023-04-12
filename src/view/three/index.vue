@@ -118,7 +118,7 @@ function initScene(DOM:any) {
 
      }))
 
-    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json', (object3d:any) => scene.add(object3d)) 
+    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json', (object3d:any) => scene.add(object3d),DOM) 
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 

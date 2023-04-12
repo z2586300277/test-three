@@ -708,6 +708,42 @@ export function createTexture(url:any) {
     
 }
 
+// 贴图img 形式
+export async function  asyncCreateTexture(url:any) {
+
+    var texture = new THREE.Texture();
+
+    const image:any = new Image()
+    image.crossOrigin = 'anonymous';
+    image.src = url
+    
+    await new Promise((r:any,j:any) => {
+        
+        image.onload = () => {
+            texture.image = image
+            r(true)
+        }
+    })
+
+    texture.encoding = THREE.sRGBEncoding
+
+    // 设置阵列模式 RepeatWrapping
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+
+    // 设置x方向的重复数(沿着管道路径方向)
+    // 设置y方向的重复数(环绕管道方向)
+    texture.repeat.x = 10;
+    texture.repeat.y = 4;
+
+    // 设置管道纹理偏移数,便于对中
+    texture.offset.y = 0.9;
+   
+    texture.needsUpdate = true;
+
+    return texture
+}
+
 // 设置时钟 fps
 export function setFpsClock(FPS:number = 144) {
         
