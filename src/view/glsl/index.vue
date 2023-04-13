@@ -13,6 +13,7 @@
             <el-button @click="getComponent('modelShader3')">模型贴图和shader非uv着色</el-button> <!--模型材质融合着色无法对应光照-->
             <el-button @click="getComponent('modelShaderLight')">原材质+特效+光照着色无uv</el-button><!--模型材质融合着色+光照-->
             <el-button @click="getComponent('modelShaderLightUv')">原材质+特效+光照着色带uv</el-button><!--模型材质融合着色+光照 + uv-->
+            <el-button @click="getComponent('modelShaderLightUvClick')">块模型加特效</el-button><!--一块模型材质融合着色+光照 + uv-->
             <el-button @click="getComponent('shaderWater')">shader水</el-button>
             <el-button @click="getComponent('shaderMountain')">shader山</el-button>
             <el-button @click="getComponent('shaderTree')">shaderTree</el-button>
