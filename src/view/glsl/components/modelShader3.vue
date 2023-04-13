@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import { ref , onMounted, onUnmounted} from 'vue';
 import { setControls, setStats, setFpsClock, loadFBX , getMaterials} from '../../three/threeApi';
 import { createGUI } from '../../three/GUI'
-
+// 直接重新赋值 形式着色
 
 const threeBox = ref()
 
