@@ -57,8 +57,8 @@ function init(DOM:any) {
             materials.map( basicMaterial => {            
                    /* 材质加工 */
                     basicMaterial.onBeforeCompile = (shader:any,renderer:any)=>{
-                    shader.uniforms.iResolution = uniforms.iResolution
-                    shader.uniforms.iTime = uniforms.iTime
+                    shader.uniforms.iResolution = uniforms.iResolution  //iResolution 分辨率
+                    shader.uniforms.iTime = uniforms.iTime  // 动效时间参数
                     // 判断携带自身贴图还是颜色
                     shader.uniforms.colorOrMap = {
                         value:  basicMaterial.map ? 1 : 0
@@ -70,6 +70,11 @@ function init(DOM:any) {
                     shader.uniforms.colorTexture = {
                         value:  basicMaterial.map
                     }
+                   /*  vec3 textureColor = texture2D( colorTexture, vUv ).rgb;     接受的贴图
+                            vec3 fragColor =  col * (10.,10.,10.);  // shader特效参数
+                            if( colorOrMap > 0.5 ) fragColor = fragColor * textureColor; // 判断模型携带的材质是颜色还是贴图
+                            else fragColor = fragColor * materialColor;
+                            gl_FragColor = vec4(fragColor ,1.0); */ 
 
                     shader.vertexShader = `
                         varying vec2 vUv;

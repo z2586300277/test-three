@@ -138,7 +138,7 @@ export function createGUI(THREE: any, scene: any, camera: any, controls:any) {
         
         if (hasCastShadow) folder.add(light, 'castShadow').name('投射阴影');
 
-        folder.add(light, 'intensity').min(-1).max(4).name('光照强度');
+        folder.add(light, 'intensity').min(-1).max(50).name('光照强度');
         
         ['x', 'y', 'z'].forEach(i => folder.add(light.position, i).min(-num).max(num).name(i + '轴坐标'));
 

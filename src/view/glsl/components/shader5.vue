@@ -81,7 +81,7 @@ function init(DOM:any) {
 
         `
     } );
-
+    // (4., 4.,4.) 可增亮颜色
     var mesh = new THREE.Mesh( geometry, material );
     scene.add( mesh );
 

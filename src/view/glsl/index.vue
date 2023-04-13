@@ -8,10 +8,10 @@
             <el-button @click="getComponent('shader3')">shader案例</el-button>
             <el-button @click="getComponent('shader4')">shader星</el-button>
             <el-button @click="getComponent('shader5')">shader5</el-button>
-            <!-- <el-button @click="getComponent('shader7')">shader星辰</el-button> -->
-            <el-button @click="getComponent('modelShader')">模型着色</el-button>
-            <el-button @click="getComponent('modelShader2')">模型UV着色</el-button>
-            <el-button @click="getComponent('modelShader3')">模型贴图非uv着色</el-button> <!--模型材质融合着色-->
+            <el-button @click="getComponent('modelShader')">无贴图shader模型uv着色1</el-button>
+            <el-button @click="getComponent('modelShader2')">无贴图shader模型uv着色2</el-button>
+            <el-button @click="getComponent('modelShader3')">模型贴图和shader非uv着色</el-button> <!--模型材质融合着色无法对应光照-->
+            <el-button @click="getComponent('modelShaderLight')">原材质+特效+光照着色</el-button><!--模型材质融合着色+光照-->
             <el-button @click="getComponent('shaderWater')">shader水</el-button>
             <el-button @click="getComponent('shaderMountain')">shader山</el-button>
             <el-button @click="getComponent('shaderTree')">shaderTree</el-button>
@@ -44,7 +44,7 @@ getComponent(localStorage.getItem('glsl') ?? 'shaderWater')
     display: grid;
     width: 100%;
     height: 80px;
-    grid-template-columns: repeat(8,120px);
+    grid-template-columns: repeat(8,160px);
     grid-template-rows: repeat(2,1fr);
     position: absolute;
 }
