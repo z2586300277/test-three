@@ -73,42 +73,29 @@ function init(DOM:any) {
                     shader.uniforms.colorTexture = {
                         value:  basicMaterial.map
                     }
-                    console.log(shader.vertexShader)
-                                    
-                    shader.vertexShader = shader.vertexShader.replace(/#include <common>/,`
-                        varying vec2 copy_uv;
-                        #include <common>    
-                    `)
                     
-                    shader.vertexShader = shader.vertexShader.replace('void main() {',`
-                        void main() {
-                            copy_uv = uv; 
-                    `)
-    
-
+                    /* 注意 如果使用原本自身的着色器进行部分替换  vUv 是已经存在的不用重新传递 */
                     shader.fragmentShader = shader.fragmentShader.replace(/#include <common>/,`
-                        varying vec2 copy_uv;
                         uniform vec2 iResolution;
                         uniform float iTime;
-                        uniform sampler2D colorTexture;
                         #include <common> 
                     `)
 
                     shader.fragmentShader = shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );',`
                         vec3 c;
-                            float l,z=iTime;
-                            for(int i=0;i<3;i++) {
-                                vec2 uv,p=gl_FragCoord.xy/iResolution/2.0;
-                                uv=p +  2.0 * copy_uv;
-                                p-=.5;
-                                p.x*=iResolution.x/iResolution.y;
-                                z+=.07;
-                                l=length(p);
-                                uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z-z));
-                                c[i]=.01/length(mod(uv,1.)-.5);
-                            }
-                        vec3 color = texture2D( colorTexture, copy_uv ).rgb;
-                        vec4 diffuseColor = vec4( diffuse * color * c, opacity );
+                        float l,z=iTime;
+                        for(int i=0;i<3;i++) {
+                            vec2 uv,p=gl_FragCoord.xy/iResolution/2.0;
+                            uv=p +  2.0;
+                            p-=.5;
+                            p.x*=iResolution.x/iResolution.y;
+                            z+=.07;
+                            l=length(p);
+                            uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z-z));
+                            c[i]=.01/length(mod(uv,1.)-.5);
+                        }
+                            
+                        vec4 diffuseColor = vec4( diffuse * c, opacity );
                     `)
 
                     }
