@@ -52,7 +52,7 @@ function init(DOM:any) {
     render()
     function render() {
         renderer.render(scene,camera)
-        requestAnimationFrame(render)
+        threeBox.value &&  requestAnimationFrame(render)
     }
 }
 </script>

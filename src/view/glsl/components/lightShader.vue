@@ -43,7 +43,7 @@ async function init(DOM:any) {
     // 着色器 根据uv 贴合 texture 参数无效  异步解决警告
     const texture = await asyncCreateTexture('https://img2.baidu.com/it/u=639935574,2199430260&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=494')
  
-    const geometry = new THREE.BoxGeometry( 10, 10, 10 );
+    const geometry = new THREE.BoxGeometry( 100, 100, 100 );
     
     // 使用 shader 库中的phong材质 进行修改
     const shader = {
@@ -96,7 +96,7 @@ async function init(DOM:any) {
     render()
     function render() {
         renderer.render(scene,camera)
-        requestAnimationFrame(render)
+        threeBox.value && requestAnimationFrame(render)
     }
 }
 </script>

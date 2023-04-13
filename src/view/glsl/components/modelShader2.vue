@@ -57,7 +57,7 @@ function init(DOM:any) {
             basicMaterial.onBeforeCompile = (shader:any,renderer:any)=>{
                shader.uniforms.iResolution = uniforms.iResolution
                shader.uniforms.iTime = uniforms.iTime
-               console.log(shader.vertexShader)
+
                shader.vertexShader = `
                varying vec2 vUv;
                 void main() {
@@ -115,7 +115,6 @@ function init(DOM:any) {
                 }
 
                 `
-                console.log(shader.fragmentShader)
             })
         })
     )
@@ -133,7 +132,7 @@ function init(DOM:any) {
             uniforms.iTime.value += 0.005;
             renderer.render(scene,camera)
         })
-        requestAnimationFrame(render)
+        threeBox.value && requestAnimationFrame(render)
         
     }
 }

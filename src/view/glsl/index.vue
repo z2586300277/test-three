@@ -1,24 +1,25 @@
 <template>
     <div class="flex">
         <div class="box" v-if="adminStore.$state.power">
-            <el-button @click="getComponent('point')">webgl绘制点</el-button>
-            <el-button @click="getComponent('shaderSky')">shader天空</el-button>
-            <el-button @click="getComponent('shader1')">shader闪烁</el-button>
-            <el-button @click="getComponent('shader2')">shader色元</el-button>
-            <el-button @click="getComponent('shader3')">shader案例</el-button>
-            <el-button @click="getComponent('shader4')">shader星</el-button>
-            <el-button @click="getComponent('shader5')">shader5</el-button>
-            <el-button @click="getComponent('modelShader')">无贴图shader模型uv着色1</el-button>
-            <el-button @click="getComponent('modelShader2')">无贴图shader模型uv着色2</el-button>
-            <el-button @click="getComponent('modelShader3')">模型贴图和shader非uv着色</el-button> <!--模型材质融合着色无法对应光照-->
-            <el-button @click="getComponent('modelShaderLight')">原材质+特效+光照着色无uv</el-button><!--模型材质融合着色+光照-->
-            <el-button @click="getComponent('modelShaderLightUv')">原材质+特效+光照着色带uv</el-button><!--模型材质融合着色+光照 + uv-->
-            <el-button @click="getComponent('modelShaderLightUvClick')">块模型加特效</el-button><!--一块模型材质融合着色+光照 + uv-->
-            <el-button @click="getComponent('shaderWater')">shader水</el-button>
-            <el-button @click="getComponent('shaderMountain')">shader山</el-button>
-            <el-button @click="getComponent('shaderTree')">shaderTree</el-button>
-            <el-button @click="getComponent('lightShader')">光照shgader</el-button>
-            <el-button @click="getComponent('sLightShader')">光照材质特效融合</el-button>
+            <el-button plain  @click="getComponent('point')">原生webgl</el-button>
+            <el-button plain  @click="getComponent('shaderSky')">shader天空</el-button>
+            <el-button plain  @click="getComponent('shader1')">shader闪烁案例</el-button>
+            <el-button plain  @click="getComponent('shader2')">shader色元</el-button>
+            <el-button plain  @click="getComponent('shader3')">平面+四方波shader</el-button>
+            <el-button plain  @click="getComponent('shaderWater')">正方体+UV+水shader</el-button>
+            <el-button plain  @click="getComponent('shaderMountain')">正方体+UV+山shader</el-button>
+            <el-button plain  @click="getComponent('shaderTree')">正方体+UV+树shader</el-button>
+            <el-button plain  @click="getComponent('textureWithShader')">两面shader+4面贴图</el-button>
+            <el-button plain  @click="getComponent('textureSpecialShader')">贴图和shaer特效融合</el-button> 
+            <el-button plain  @click="getComponent('modelShader')">模型+着色+非光照+UV案例1</el-button>
+            <el-button plain  @click="getComponent('modelShader2')">模型+着色+非光照+UV案例2</el-button>
+            <el-button plain  @click="getComponent('modelShader3')">模型贴图+着色+非光照+无UV</el-button> <!--模型材质融合着色无法对应光照-->
+            <el-button plain  @click="getComponent('lightShader')">光照+shader贴图</el-button>
+            <el-button plain  @click="getComponent('lightSpecialShader')">光照+shader贴图+着色</el-button>
+            <el-button plain  @click="getComponent('modelShaderLight')">模型贴图+着色+光照+无UV</el-button><!--模型材质融合着色+光照-->
+            <el-button plain  @click="getComponent('modelShaderLightUv')">模型贴图+着色+光照+UV</el-button><!--模型材质融合着色+光照 + uv-->
+            <el-button plain  @click="getComponent('modelShaderLightUvClick')">块+模型贴图+着色+光照+UV</el-button><!--一块模型材质融合着色+光照 + uv-->
+
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
@@ -29,11 +30,13 @@
 <script lang="ts" setup>
 import { defineAsyncComponent, shallowRef, ref} from 'vue'
 import { useUserStore,  useAdminStore } from '../../pinia'
+import { ElMessage } from 'element-plus'
 
 const adminStore = useAdminStore()
 
 let AsyncComp:any = shallowRef()
 const getComponent = (name:string) =>  {
+    ElMessage(name)
     AsyncComp.value = defineAsyncComponent(() => new Promise((resolve, reject) =>  setTimeout(() =>  resolve(import(/* @vite-ignore */'./components/'+name+'.vue')), 500)))
     localStorage.setItem('glsl', name)
 }
@@ -46,7 +49,7 @@ getComponent(localStorage.getItem('glsl') ?? 'shaderWater')
     display: grid;
     width: 100%;
     height: 80px;
-    grid-template-columns: repeat(8,170px);
+    grid-template-columns: repeat(6,200px);
     grid-template-rows: repeat(3,1fr);
     position: absolute;
 }

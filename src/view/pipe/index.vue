@@ -253,7 +253,7 @@ function initScene(DOM:any) {
             /* 渲染 */
         })
       
-        requestAnimationFrame(render)
+        threeDom.value && requestAnimationFrame(render)
     } 
 
     window.onresize = () => {

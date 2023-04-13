@@ -50,8 +50,6 @@ function init(DOM:any) {
     loadFBX('http://guangfu/zlcky/zlcky.FBX',  ((object3d:any) => {
 
             scene.add(object3d)
-            object3d.children[0].position.set(0,0,0)
-            object3d.children[0].scale.set(0.1,0.1,0.1)
 
             const materials = getMaterials(object3d)
             
@@ -116,7 +114,7 @@ function init(DOM:any) {
             uniforms.iTime.value += 0.005;
             renderer.render(scene,camera)
         })
-        requestAnimationFrame(render)
+        threeBox.value && requestAnimationFrame(render)
         
     }
 }

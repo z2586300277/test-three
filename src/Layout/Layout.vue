@@ -6,9 +6,9 @@
     <div class="Layout-Right">
        <router-view v-slot="{ Component }">
             <keep-alive>
-                <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath" />
+                <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath!='/glsl'" />
             </keep-alive>
-            <component :is="Component" :key="$route.fullPath" v-if="!$route.fullPath"   />
+            <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath=='/glsl'"   />
         </router-view>
     </div>
     
