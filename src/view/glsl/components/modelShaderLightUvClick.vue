@@ -45,19 +45,6 @@ function materialToShader(basicMaterial:any) {
         shader.uniforms.iTime = uniforms.iTime
         shader.uniforms.iColorIntensity = { ... uniforms.iColorIntensity } // 采用复制 不使用同一对象内存
         
-        // 判断携带自身贴图还是颜色
-        shader.uniforms.colorOrMap = {
-            value:  basicMaterial.map ? 1 : 0
-        }
-        
-        shader.uniforms.materialColor = {
-            type: 'v3',
-            value:  new THREE.Vector3(basicMaterial.color.r,basicMaterial.color.g,basicMaterial.color.b)
-        }
-        shader.uniforms.colorTexture = {
-            value:  basicMaterial.map
-        }
-        
         /* 注意 如果使用原本自身的着色器进行部分替换  vUv 是已经存在的不用重新传递 */
         shader.fragmentShader = shader.fragmentShader.replace(/#include <common>/,`
             uniform vec2 iResolution;
