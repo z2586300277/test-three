@@ -1,5 +1,5 @@
 <template>
-    <div ref="threeDom" class="threeDom" @dblclick="modelClick"></div>
+    <div ref="threeDom" class="threeDom" @dblclick="clickDraw"></div>
 </template>
 
 <script lang="ts" setup>
@@ -10,7 +10,7 @@ import {
     setControls,getMaterials,objectDragHelper, 
     loadFBX ,setFpsClock, setOutLinePass , setStats,
     getWebGLMouse , clickIntersect,formatVertices, 
-    lineGeometry, multShapeGroup, pointsGeometry, multShapePlaneGeometry
+    setPointsLineFaceGeometry,
 } from './threeApi'
 import { loadTiles, TilesUpadate, TilesBatchTable}  from './tilesApi'
 import { createGUI } from './GUI'
@@ -23,6 +23,10 @@ onDeactivated(() => viewer.GUI.domElement.hidden = true)
 const threeDom = ref()
 let viewer:any;
 let point_arr:any = ref([])
+
+// 绘制点线面
+watch(point_arr.value,(points) => setPointsLineFaceGeometry( {},points, viewer.scene))
+
 
 // 模型选中
 function modelClick (e: any) {
@@ -46,21 +50,6 @@ function clickDraw(e: any) {
         const { object, face, point} = intersect
         point_arr.value.push(point)
     }
-    // 绘制点线面
-    watch(point_arr.value,() => {
-
-        const arr = formatVertices(point_arr.value)
-        const points = pointsGeometry(arr)
-        const line = lineGeometry(arr)
-        const {indexGroup, faceGroup, uvGroup } = multShapeGroup(point_arr.value, 'indexFace', viewer.scene)
-        const area = multShapePlaneGeometry(faceGroup,indexGroup, uvGroup)
-        area.position.y += 10
-
-        // 生成后 后续直接更新点信息
-        viewer.scene.add(points)
-        viewer.scene.add(line)
-        viewer.scene.add(area)
-    })
 }
 
 

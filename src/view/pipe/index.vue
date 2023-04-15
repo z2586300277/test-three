@@ -171,7 +171,7 @@ function pointMove(e:any) {
         
         // 线条创建或者更新
         if(!line) {
-            line = createLine(points,'white', 50)
+            line = createLine(points,'white')
             viewer.scene.add(line)
         }
         else line.geometry.setFromPoints(points)
