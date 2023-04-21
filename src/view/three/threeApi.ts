@@ -11,7 +11,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { Flow } from 'three/examples/jsm/modifiers/CurveModifier.js';
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
-
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 export function pointCube(point:any, size:number= 10, color:any = 'red') {
     
@@ -85,7 +85,7 @@ export function setSceneBackground(scene:any) {
     scene.background = sceneTexture;
 }
 
-//
+//获取材质列表
 export function getMaterials(object3d:any) {
 
     let materialArr:any = []
@@ -287,7 +287,7 @@ export function getWebGLMouse(event:any){
 }
 
 // 鼠标射线
-export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
+export function clickIntersect(mouse:any,CAMERA:any, SCENE:any, isList: any = false) :any {
 
      //创建射线
      const raycaster = new THREE.Raycaster()
@@ -297,6 +297,8 @@ export function clickIntersect(mouse:any,CAMERA:any, SCENE:any) :any {
 
      //获取射线碰撞的物体
      const intersects = raycaster.intersectObjects(SCENE.children)
+
+     if(isList) return intersects
 
      //如果有碰撞 //获取碰撞的第一个物体
      if(intersects.length > 0)return  intersects[0]
@@ -930,4 +932,78 @@ export function objectDragHelper(objects:any, camera:any, renderer:any , control
     } );
 
     return dragControls
+}
+
+export function transFormControls(renderer:any,camera:any, orbitControl:any, render: any ) {
+    
+    const control = new TransformControls( camera, renderer.domElement );
+
+    control.addEventListener( 'change', render );
+
+    control.addEventListener( 'dragging-changed', function ( event ) {
+
+        orbitControl.enabled = ! event.value;
+
+    } );
+
+    window.addEventListener( 'keydown', function ( event:any ) {
+
+        console.log(event.keyCode)
+
+        switch ( event.keyCode ) {
+
+            case 16: // Shift
+                control.setTranslationSnap( 100 );
+                control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+                control.setScaleSnap( 0.25 );
+                break;
+
+            case 87: // W
+                control.setMode( 'translate' );
+                break;
+
+            case 69: // E
+                control.setMode( 'rotate' );
+                break;
+
+            case 82: // R
+                control.setMode( 'scale' );
+                break;
+
+            case 107: // +, =, num+
+                control.setSize( control.size + 0.1 );
+                break;
+
+            case 189:
+            case 109: // -, _, num-
+                control.setSize( Math.max( control.size - 0.1, 0.1 ) );
+                break;
+
+            case 32: // Spacebar
+                control.enabled = ! control.enabled;
+                break;
+
+            case 27: // Esc
+                control.reset();
+                break;
+
+        }
+
+    } );
+
+    window.addEventListener( 'keyup', function ( event:any ) {
+
+        switch ( event.keyCode ) {
+
+            case 16: // Shift
+                control.setTranslationSnap( null );
+                control.setRotationSnap( null );
+                control.setScaleSnap( null );
+                break;
+
+        }
+
+    } );
+
+    return control
 }
