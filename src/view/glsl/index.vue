@@ -19,7 +19,7 @@
             <el-button plain  @click="getComponent('modelShaderLight')">模型贴图+着色+光照+无UV</el-button><!--模型材质融合着色+光照-->
             <el-button plain  @click="getComponent('modelShaderLightUv')">模型贴图+着色+光照+UV</el-button><!--模型材质融合着色+光照 + uv-->
             <el-button plain  @click="getComponent('modelShaderLightUvClick')">块+模型贴图+着色+光照+UV</el-button><!--一块模型材质融合着色+光照 + uv-->
-
+            <el-button plain  @click="getComponent('customBlendShader')">特效多种函数混合着色</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
