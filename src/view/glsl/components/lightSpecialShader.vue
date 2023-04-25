@@ -45,7 +45,7 @@ async function init(DOM:any) {
  
     const geometry = new THREE.BoxGeometry( 100, 100, 100 );
     
-    // 使用 shader 库中的phong材质 进行修改
+    // 使用 shader 库中的phong材质 进行修改    mix 插值计算颜色 进行混合
     const shader = {
         uniforms: THREE.UniformsUtils.merge( [
             THREE.ShaderLib[ 'phong' ].uniforms,
@@ -97,7 +97,8 @@ async function init(DOM:any) {
             c[i]=.01/length(mod(uv,1.)-.5);
         }
       vec3 color = texture2D( colorTexture, vUv ).rgb;
-      vec4 diffuseColor = vec4( diffuse * color * c, opacity );
+      vec3 mixedColor =  mix(color, c, 0.3);
+      vec4 diffuseColor = vec4( diffuse * mixedColor, opacity );
     `)
 
     const material = new THREE.ShaderMaterial( shader );
