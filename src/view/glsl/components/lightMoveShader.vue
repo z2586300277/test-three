@@ -38,35 +38,22 @@ function init(DOM:any) {
         u_color: { value: new THREE.Color("#5588aa") },
         u_tcolor: { value: new THREE.Color("#ff9800") },
         u_r: { value: 0.25 },
-        u_length: { value: 20 },//扫过区域
-        u_max: { value: 300 }//扫过最大值
+        u_length: { value: 80 },//扫过区域
+        u_max: { value: 800 }//扫过最大值
 
     }
 
-    
-    loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
-
-            scene.add(object3d)
-
-            const materials = getMaterials(object3d)
-
-            materials.map( basicMaterial => 
-            /* 材质加工 */
-            basicMaterial.onBeforeCompile = (shader:any,renderer:any)=>{
-               shader.uniforms.u_color = uniforms.u_color
-                shader.uniforms.u_tcolor = uniforms.u_tcolor
-                shader.uniforms.u_r = uniforms.u_r
-                shader.uniforms.u_length = uniforms.u_length
-                shader.uniforms.u_max = uniforms.u_max
-
-               shader.vertexShader = `
-                varying vec3 vp;
-                    void main(){
-                        vp = position; 
-                        gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    }
-                `,
-               shader.fragmentShader = `
+    var geometry = new THREE.PlaneGeometry( 2000, 2000 );
+    var material = new THREE.ShaderMaterial( {
+        uniforms,
+        vertexShader: `
+            varying vec3 vp;
+                void main(){
+                    vp = position; 
+                    gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+        `,
+        fragmentShader: `
                varying vec3 vp;
                 uniform vec3 u_color;
                 uniform vec3 u_tcolor;
@@ -91,11 +78,23 @@ function init(DOM:any) {
                     } 
                     gl_FragColor = vec4(vColor,uOpacity);
                 }
-                `
-            })
+            `
+    })
+
+    const mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
+
+
+    
+    loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
+
+            scene.add(object3d)
+
+            object3d.traverse((c:any) => c.material = material)
+
         })
     )
-    window.onresize = () => uniforms.iResolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
+
 
     // 帧率显示
     const stats = setStats()
@@ -106,7 +105,10 @@ function init(DOM:any) {
     function render(dalte:any) {
         fpsRender(() => {
             stats && stats.update()
-            uniforms.u_r.value += 1;
+            uniforms.u_r.value += 3;
+            if (uniforms.u_r.value > uniforms.u_max.value) {
+                uniforms.u_r.value = 0;
+            }
             renderer.render(scene,camera)
         })
         threeBox.value && requestAnimationFrame(render)
