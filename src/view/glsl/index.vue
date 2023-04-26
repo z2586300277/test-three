@@ -11,6 +11,7 @@
             <el-button plain  @click="getComponent('shaderTree')">正方体+UV+树shader</el-button>
             <el-button plain  @click="getComponent('textureWithShader')">两面shader+4面贴图</el-button>
             <el-button plain  @click="getComponent('textureSpecialShader')">贴图和shaer特效融合</el-button> 
+            <el-button plain  @click="getComponent('lightMoveShader')">模型扫光</el-button> 
             <el-button plain  @click="getComponent('modelShader')">模型+着色+非光照+UV案例1</el-button>
             <el-button plain  @click="getComponent('modelShader2')">模型+着色+非光照+UV案例2</el-button>
             <el-button plain  @click="getComponent('modelShader3')">模型贴图+着色+非光照+无UV</el-button> <!--模型材质融合着色无法对应光照-->
