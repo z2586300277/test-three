@@ -76,3 +76,10 @@ mix(x,y,a)：按照系数a线性插值x,y之间的值（即返回 x*(1-a)+y*a）
 smoothstep(edge0,edge1,x)：对x进行平滑阈值函数操作，返回一个平滑过渡到目标区域的输出值
 step(edge,x)：当x小于等于edge时返回1.0，否则返回0.0
 clamp(x,minVal,maxVal)：将x限制在[minVal,maxVal]范围内 */
+
+
+// 材质的高光反射属性：可以使用 MeshStandardMaterial 或 MeshPhongMaterial 等材质，在 material 对象中设置 metalness 和 roughness 属性的值来控制高光反射强度和光滑度。
+
+// 光源信息的设置：对于使用 Phong 着色模型的材质，需要增加一个 point light 或 spot light 光源，并在 light 对象中设置 distance 和 angle 等参数，来控制高光反射特性。
+
+// 添加环境贴图：可以使用 HDRI（High Dynamic Range Image）环境贴图，通过环境反射来提高真实感和光泽度。
