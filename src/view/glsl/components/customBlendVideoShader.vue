@@ -1,16 +1,14 @@
 <template>
     <div class="threeBox" ref="threeBox"></div>
-    <video ref="videoRef" crossOrigin="anonymous" muted autoplay src='bunny.mp4' />
 </template>
 
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls ,asyncCreateTexture,createTexture, loadFBX, loaderManager ,getMaterials} from '../../three/threeApi';
+import { setControls ,createVideoTexture,createTexture, loadFBX, loaderManager ,getMaterials} from '../../three/threeApi';
 import { createGUI } from '../../three/GUI'
 
 const threeBox = ref()
-const videoRef = ref()
 
 onMounted(() => init(threeBox.value))
 
@@ -38,9 +36,8 @@ async function init(DOM:any) {
     onDeactivated(() =>GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
-    videoRef.value.play()
     // 着色器 根据uv 贴合 texture 参数无效  异步解决警告
-    const texture = new THREE.VideoTexture(videoRef.value)
+    const texture = await createVideoTexture('bunny.mp4')
  
     const geometry = new THREE.BoxGeometry( 100, 100, 100 );
     

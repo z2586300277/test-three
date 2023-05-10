@@ -790,6 +790,28 @@ export async function  asyncCreateTexture(url:any) {
     return texture
 }
 
+// viedo 贴图
+export async function createVideoTexture(url:any) {
+
+    const video = document.createElement('video')
+    video.crossOrigin = 'anonymous';
+    video.src = url
+    video.loop = true
+    video.muted = true
+    video.play()
+
+    await new Promise((r:any,j:any) => {
+        video.onloadeddata = () => {
+            r(true)
+        }
+    })
+
+    const texture = new THREE.VideoTexture(video)
+    texture.encoding = THREE.sRGBEncoding
+
+    return texture
+}
+
 // 设置时钟 fps
 export function setFpsClock(FPS:number = 144) {
         
