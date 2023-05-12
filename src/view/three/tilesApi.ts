@@ -6,21 +6,11 @@ let box = new THREE.Box3();
 let sphere = new THREE.Sphere();
 
 export const TilesUpadate = (tilesRenderer:any) =>{
-    // update tiles center 根据包围盒子或者包围球使用边界框来定义合理的中心，然后像这样偏移网格的位置来自动进行重新定位
-    if (tilesRenderer.getBounds(box)) {
 
-        box.getCenter(tilesRenderer.group.position);
-
-        tilesRenderer.group.position.multiplyScalar(- 1);
-
-    }
-    else if (tilesRenderer.getBoundingSphere(sphere)) {
-
-        tilesRenderer.group.position.multiplyScalar(-1);
-
-    }
+    /* 可再此增加其他渲染操作 */
 
     tilesRenderer.update();
+    
 }
 
 export const loadTiles = (camera:any, renderer:any, url:string, callback:any, DOM:any) => {
@@ -34,21 +24,37 @@ export const loadTiles = (camera:any, renderer:any, url:string, callback:any, DO
     // 设置渲染
     tilesRenderer.setResolutionFromRenderer( camera, renderer );
     
-    //加载时候修改材质
+    //每一个切片加载 时候修改材质
     tilesRenderer.onLoadModel = function(group:any) {
 
         group.traverse((c:any )=> {
-          
             if ( c.isMesh ) {
                  c.material.transparent = true;
                  c.uniformHigh = batchIdHighlightShaderMixin(c.material,DOM);
 
             }
-        });
+        })
 
     };
 
-    tilesRenderer.onLoadTileSet = (g:any) => { }
+    // 模型加载时
+    tilesRenderer.onLoadTileSet = (g:any) => {
+       
+        // 纠正模型位置 根据包围盒子或者包围球使用边界框来定义合理的中心，然后像这样偏移网格的位置来自动进行重新定位
+        if (tilesRenderer.getBounds(box)) {
+
+            box.getCenter(tilesRenderer.group.position);
+    
+            tilesRenderer.group.position.multiplyScalar(- 1);
+    
+        }
+        else if (tilesRenderer.getBoundingSphere(sphere)) {
+    
+            tilesRenderer.group.position.multiplyScalar(-1);
+    
+        }
+
+     }
 
     const model:any = new THREE.Group();
     model.add(tilesRenderer.group);
