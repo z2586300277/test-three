@@ -53,9 +53,14 @@ async function changeFrag() {
                     type: 'f',
                     value: 0.0
                 },
-                channel: { value: await asyncCreateTexture(channel.value) }
+                channel: { value: await asyncCreateTexture(channel.value) },
+                u_mouse: {
+                    type: 'v2',
+                    value: new THREE.Vector2(0, 0)
+                }
             }
         ]),
+        side: THREE.DoubleSide,
         vertexShader: `
             varying vec2 vUv;
             void main() {
@@ -67,7 +72,7 @@ async function changeFrag() {
         fragmentShader: await fetch(frag.value).then(res => res.text()),
     }
 
-    shader.fragmentShader = shader.fragmentShader.replace(/gl_FragCoord/, ' vUv * gl_FragCoord')
+    shader.fragmentShader = shader.fragmentShader.replace(/gl_FragCoord/, 'gl_FragCoord')
     shader.fragmentShader = shader.fragmentShader.replace(/uniform float u_time;/, `
         uniform float u_time;
         varying vec2 vUv;
