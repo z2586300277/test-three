@@ -83,6 +83,7 @@ export function setSceneBackground(scene:any) {
     ]);
     sceneTexture.encoding = THREE.sRGBEncoding;
     scene.background = sceneTexture;
+    return sceneTexture
 }
 
 //获取材质列表
