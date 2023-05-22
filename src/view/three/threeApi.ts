@@ -13,6 +13,7 @@ import { Flow } from 'three/examples/jsm/modifiers/CurveModifier.js';
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 
 export function pointCube(point:any, size:number= 10, color:any = 'red') {
     
@@ -691,11 +692,40 @@ export const curveMove = (curve: any, model:any, speed:any= 0.0001,way:any= 'go'
 } 
 
 /* hdr */
-export function loadHDRTexture(url:any) {
+export function loadHDRTexture(url:any, renderer:any) {
 
-    const texture = new RGBELoader().load( url);
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+    const texture:any = new RGBELoader().load( url, (t) => {
+        const map = pmremGenerator.fromEquirectangular(t).texture;
+        pmremGenerator.dispose();
+        return map
+    })
+
+    texture.mipping = THREE.EquirectangularReflectionMapping 
+    
     return texture
 
+}
+
+/* exr */
+export function loadEXRTexture(url:any, renderer:any) {
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+    const texture:any = new EXRLoader().load( url, (t) => {
+
+        t.mapping = THREE.EquirectangularReflectionMapping;
+
+        const map = pmremGenerator.fromEquirectangular(t).texture;
+
+        pmremGenerator.dispose();
+
+        return map
+
+    })
+
+    return texture
 }
 
 
