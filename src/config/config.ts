@@ -8,4 +8,5 @@ export const routers: Array<any> = [
     // 'vector——/vector——/vector/vector——向量',
     'envMap——/envMap——/envMap/envMap——环境贴图',
     't1ilesShader——/tilesShader——/tilesShader/tilesShader——tiles着色器',
+    'ThreeSceneEditor——/ThreeSceneEditor——/ThreeSceneEditor/ThreeSceneEditor——tiles着色器2',
 ]
