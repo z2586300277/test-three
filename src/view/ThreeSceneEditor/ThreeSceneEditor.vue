@@ -26,8 +26,6 @@ onMounted(() => {
             clickEventCallback: () => { }
       }
       const threeSceneEditor = new (ThreeSceneEditor as any)(option)
-
-      threeSceneEditor.setThreeSceneEditor();
 })
 </script>
 
