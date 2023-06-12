@@ -83,3 +83,39 @@ clamp(x,minVal,maxVal)：将x限制在[minVal,maxVal]范围内 */
 // 光源信息的设置：对于使用 Phong 着色模型的材质，需要增加一个 point light 或 spot light 光源，并在 light 对象中设置 distance 和 angle 等参数，来控制高光反射特性。
 
 // 添加环境贴图：可以使用 HDRI（High Dynamic Range Image）环境贴图，通过环境反射来提高真实感和光泽度。
+
+
+/*  着色器与模型矩阵转换运算 */
+// const meshFragmentShader = {
+
+//     vertexHeader: `
+
+//     varying vec3 v_position;
+
+//     void main() {
+//         vec4 pos = modelViewMatrix * vec4(position, 1.0);
+//         v_position  =  pos.xyz;
+//     `
+//     ,
+
+//     fragHeader: Object.keys(meshControlsUniforms).map(i => 'uniform ' + meshControlsUniforms[i].unit + ' ' + i + ';').join('\n') 
+//     + 'varying vec3 v_position; \n'
+//     + ` #include <common> `,
+    
+//     fragBody: `
+        
+//         vec3 c;
+//         float l,z=iTime;
+//         for(int i=0;i<3;i++) {
+//             vec2 uv,p=v_position.xy/v_position.z;
+//             uv= p +  2.0;
+//             p-=.5;
+//             p.x*=iResolution.x/iResolution.y;
+//             z+=.07;
+//             l=length(p);
+//             uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z-z));
+//             c[i]=.01/length(mod(uv,1.)-.5);
+//         }
+//         vec4 diffuseColor = vec4( mix(diffuse, c * mixColor * vec3(intensity, intensity, intensity) , mixRatio), opacity );
+//     `
+// }
