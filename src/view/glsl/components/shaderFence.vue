@@ -69,7 +69,7 @@
      },
      hiz: {
        type: "pv2",
-       value: 0.15,
+       value: 0.03,
      },
    },
    vertexShader: vertexs,
@@ -107,6 +107,7 @@
    renderer.toneMappingExposure = 0.85
    renderer.shadowMap.enabled = true;
    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+   renderer.setClearColor(0x000000, 0)
    let width = test.value.clientWidth
    let height = test.value.clientHeight
    renderer.setPixelRatio(window.devicePixelRatio) //设置设备像素比率,防止Canvas画布输出模糊。
