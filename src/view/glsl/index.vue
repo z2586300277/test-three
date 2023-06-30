@@ -23,6 +23,7 @@
             <el-button plain  @click="getComponent('customBlendShader')">特效多种函数混合着色</el-button>
             <el-button plain  @click="getComponent('customBlendVideoShader')">特效视频混合着色</el-button>
             <el-button plain  @click="getComponent('shaderFence')">围栏效果</el-button>
+            <el-button plain  @click="getComponent('movingParticles')">粒子</el-button>
             <el-button plain  @click="getComponent('flyLine')">飞线</el-button>
         </div>
         <div class="cmpt">

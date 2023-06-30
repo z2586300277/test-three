@@ -1189,3 +1189,105 @@ mesh.rotation.z = -Math.PI / 2;
 
 return { mesh, ShaderAnimateRender, uniforms }
 }
+
+// 生成粒子效果 数量 内半径  外半径 
+export const setParticleEffect = (particlesSum = 100, inner = 100, outer = 300, maxVelocity = 0.1) => {
+
+    // 粒子位置
+    const positions: any = [];
+
+    // 粒子速度
+    const velocities: any = [];
+
+    function getPosition() {
+
+        let x, y, z
+
+        do {
+
+            x = Math.random() * 2 * outer - outer;
+
+            y = Math.random() * 2 * outer - outer;
+
+            z = Math.random() * 2 * outer - outer;
+
+        } while (Math.abs(x) <= inner && Math.abs(y) <= inner && Math.abs(z) <= inner);
+
+        return [x, y, z]
+
+    }
+
+    function getVelocity() {
+
+        const vX = (Math.random() - 0.5) * maxVelocity
+
+        const vY = (Math.random() - 0.5) * maxVelocity
+
+        const vZ = (Math.random() - 0.5) * maxVelocity
+
+        return [vX, vY, vZ]
+
+    }
+
+    for (let i = 0; i < particlesSum; i++) {
+
+        positions.push(...getPosition())
+
+        velocities.push(...getVelocity())
+
+    }
+
+    const geometry = new THREE.BufferGeometry()
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+
+    function geometryRender() {
+
+        const positions = geometry.attributes.position.array;
+
+        for (let i = 0; i < particlesSum; i++) {
+
+            positions[i * 3] += velocities[i * 3];
+
+            positions[i * 3 + 1] += velocities[i * 3 + 1];
+
+            positions[i * 3 + 2] += velocities[i * 3 + 2];
+
+            // 随机生成新的速度偏移量
+            const [vX, vY, vZ] = getVelocity()
+
+            velocities[i * 3] += vX
+
+            velocities[i * 3 + 1] += vY
+
+            velocities[i * 3 + 2] += vZ
+
+            if (
+                Math.abs(positions[i * 3]) > outer ||
+                Math.abs(positions[i * 3 + 1]) > outer ||
+                Math.abs(positions[i * 3 + 2]) > outer ||
+                Math.abs(positions[i * 3]) < inner &&
+                Math.abs(positions[i * 3 + 1]) < inner &&
+                Math.abs(positions[i * 3 + 2]) < inner
+            ) {
+
+                const [x, y, z] = getPosition()
+
+                positions[i * 3] = x
+
+                positions[i * 3 + 1] = y
+
+                positions[i * 3 + 2] = z
+
+            }
+
+        }
+
+        geometry.attributes.position.needsUpdate = true;
+
+    }
+
+    return { geometry, geometryRender }
+
+
+}
