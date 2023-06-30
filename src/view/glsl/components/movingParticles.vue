@@ -20,18 +20,19 @@ function init(DOM: any) {
   DOM.appendChild(renderer.domElement)
   setControls(camera, renderer)
  
-  const { geometry, geometryRender } = setParticleEffect(1000, 10, 300, 0.01)
+  const { geometry, geometryRender } = setParticleEffect(100000, 0, 1000, 0.01)
 
   const material = new THREE.PointsMaterial({
-    size: 4,
-    color: new THREE.Color('red'),
+    size: 10,
+    color: Math.random() * 0xffffff,
     map: new THREE.TextureLoader().load('/snow.png'),
     transparent: true,
     sizeAttenuation: true, // 开启根据距离进行大小衰减
-    alphaTest: 0.5,// 控制透明度显示的阈值，越低则显示效果越好
+    alphaTest: 0.4,// 控制透明度显示的阈值，越低则显示效果越好
     blending: THREE.AdditiveBlending,
     depthTest: true
   });
+  console.log(material)
 
   const particleGeometry = new THREE.Points(geometry, material);
   scene.add(particleGeometry);

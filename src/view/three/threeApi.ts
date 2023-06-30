@@ -1194,10 +1194,10 @@ return { mesh, ShaderAnimateRender, uniforms }
 export const setParticleEffect = (particlesSum = 100, inner = 100, outer = 300, maxVelocity = 0.1) => {
 
     // 粒子位置
-    const positions: any = [];
+    const positions: any = new Float32Array(particlesSum * 3);
 
     // 粒子速度
-    const velocities: any = [];
+    const velocities: any = new Float32Array(particlesSum * 3);
 
     function getPosition() {
 
@@ -1231,20 +1231,18 @@ export const setParticleEffect = (particlesSum = 100, inner = 100, outer = 300, 
 
     for (let i = 0; i < particlesSum; i++) {
 
-        positions.push(...getPosition())
+        positions.set(getPosition(), i * 3)
 
-        velocities.push(...getVelocity())
+        velocities.set(getVelocity(), i * 3)
 
     }
 
     const geometry = new THREE.BufferGeometry()
 
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    
     function geometryRender() {
-
-        const positions = geometry.attributes.position.array;
-
+        
         for (let i = 0; i < particlesSum; i++) {
 
             positions[i * 3] += velocities[i * 3];
@@ -1288,6 +1286,5 @@ export const setParticleEffect = (particlesSum = 100, inner = 100, outer = 300, 
     }
 
     return { geometry, geometryRender }
-
 
 }
