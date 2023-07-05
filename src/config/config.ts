@@ -9,4 +9,5 @@ export const routers: Array<any> = [
     'envMap——/envMap——/envMap/envMap——环境贴图',
     't1ilesShader——/tilesShader——/tilesShader/tilesShader——tiles着色器',
     'ThreeSceneEditor——/ThreeSceneEditor——/ThreeSceneEditor/ThreeSceneEditor——tiles着色器2',
+    'threeVideo——/threeVideo——/threeVideo/threeVideo——三维视频',
 ]
