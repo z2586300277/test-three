@@ -841,7 +841,6 @@ export async function createVideoTexture(url:any) {
     video.src = url
     video.loop = true
     video.muted = true
-    video.play()
 
     await new Promise((r:any,j:any) => {
         video.onloadeddata = () => {
@@ -851,7 +850,8 @@ export async function createVideoTexture(url:any) {
 
     const texture = new THREE.VideoTexture(video)
     texture.encoding = THREE.sRGBEncoding
-
+    texture.video = video
+    
     return texture
 }
 
