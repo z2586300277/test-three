@@ -1,50 +1,66 @@
 <template>
     <div class="threeBox" ref="threeBox"></div>
+    <div style="position:absolute;bottom: 0;">
+        <el-button @click="playVideo">播放</el-button>
+        <el-button @click="pauseVideo">停止</el-button>
+        <el-button @click="openSound">声音</el-button>
+
+    </div>
 </template>
 
 <script lang="ts" setup>
 import * as THREE from 'three'
-import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls ,createVideoTexture,createTexture, loadFBX, loaderManager ,getMaterials} from '../../three/threeApi';
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue';
+import { setControls, createVideoTexture, createTexture, loadFBX, loaderManager, getMaterials } from '../../three/threeApi';
 import { createGUI } from '../../three/GUI'
 
 const threeBox = ref()
-
+let texture: any
 onMounted(() => init(threeBox.value))
 
-async function init(DOM:any) {
+function playVideo() {
+    texture.video.play()
+}
+function pauseVideo() {
+    texture.video.pause()
+}  
+function openSound() {
+    texture.video.muted = !texture.video.muted
+} 
+async function init(DOM: any) {
 
     const scene = new THREE.Scene()
 
-    const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    const camera = new THREE.PerspectiveCamera(50, DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
     scene.add(camera);
 
-    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true })
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
-    renderer.setPixelRatio( window.devicePixelRatio * 2)
-    renderer.setClearColor( 0x000000 )
+    renderer.setPixelRatio(window.devicePixelRatio * 2)
+    renderer.setClearColor(0x000000)
     renderer.outputEncoding = THREE.sRGBEncoding;
     DOM.appendChild(renderer.domElement)
 
-    const controls =  setControls(camera, renderer)
+    const controls = setControls(camera, renderer)
 
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
-    
-    const GUI = createGUI(THREE,scene,camera,controls)
-    onActivated(() => GUI.domElement.hidden = false )
-    onDeactivated(() =>GUI.domElement.hidden = true)
+
+    const GUI = createGUI(THREE, scene, camera, controls)
+    onActivated(() => GUI.domElement.hidden = false)
+    onDeactivated(() => GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
     // 着色器 根据uv 贴合 texture 参数无效  异步解决警告
-    const texture = await createVideoTexture('bunny.mp4')
- 
-    const geometry = new THREE.BoxGeometry( 100, 100, 100 );
-    
+    texture = await createVideoTexture('http://vjs.zencdn.net/v/oceans.mp4')
+    texture.video.play()
+
+    const geometry = new THREE.BoxGeometry(100, 100, 100);
+
     // 使用 shader 库中的phong材质 进行修改    mix 插值计算颜色 进行混合
     const shader = {
-        uniforms: THREE.UniformsUtils.merge( [
-            THREE.ShaderLib[ 'phong' ].uniforms,
+        uniforms: THREE.UniformsUtils.merge([
+            THREE.ShaderLib['phong'].uniforms,
             {
                 r: {
                     type: 'v2',
@@ -60,22 +76,22 @@ async function init(DOM:any) {
                 }
             }
         ]),
-        vertexShader: THREE.ShaderLib[ 'phong' ].vertexShader,
-        fragmentShader: THREE.ShaderLib[ 'phong' ].fragmentShader,
+        vertexShader: THREE.ShaderLib['phong'].vertexShader,
+        fragmentShader: THREE.ShaderLib['phong'].fragmentShader,
     }
     GUI.add(shader.uniforms.calcType, 'value', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).name('混合类型')
 
-    shader.vertexShader = shader.vertexShader.replace(/#include <common>/,`
+    shader.vertexShader = shader.vertexShader.replace(/#include <common>/, `
         varying vec2 vUv;
         #include <common>    
     `)
-    
-    shader.vertexShader = shader.vertexShader.replace('void main() {',`
+
+    shader.vertexShader = shader.vertexShader.replace('void main() {', `
         void main() {
         vUv = uv; 
     `)
 
-    shader.fragmentShader = shader.fragmentShader.replace(/#include <common>/,`
+    shader.fragmentShader = shader.fragmentShader.replace(/#include <common>/, `
         precision highp float;
         varying vec2 vUv;
         uniform vec2 r;
@@ -85,7 +101,7 @@ async function init(DOM:any) {
         #include <common> 
     `)
 
-    shader.fragmentShader = shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );',`
+    shader.fragmentShader = shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );', `
        vec3 c;
         float l,z=t;
         for(int i=0;i<3;i++) {
@@ -114,18 +130,18 @@ async function init(DOM:any) {
       vec4 diffuseColor = vec4( diffuse * mixedColor, opacity );
     `)
 
-    const material = new THREE.ShaderMaterial( shader );
+    const material = new THREE.ShaderMaterial(shader);
 
     material.lights = true
-    
-    var mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
+
+    var mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
     render()
     function render() {
         shader.uniforms.t.value += 0.05
-        renderer.render(scene,camera)
-        threeBox.value &&  requestAnimationFrame(render)
+        renderer.render(scene, camera)
+        threeBox.value && requestAnimationFrame(render)
     }
 }
 </script>
