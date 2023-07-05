@@ -30,10 +30,18 @@ async function init(DOM:any) {
     const controls =  setControls(camera, renderer)
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
+    
+    controls.addEventListener('change', () => {
+         controls.target.x = 0 
+         controls.target.y = 0 
+         controls.target.z = 0 
+    })
+
+    controls.maxDistance = 4000
 
     const geometry = new THREE.SphereGeometry( 5000, 60, 40 );
 
-    const texture:any = await createVideoTexture('MaryOculus.mp4')
+    const texture:any = await createVideoTexture('pano.mp4')
     texture.video.muted = true
     texture.video.play()
     const material = new THREE.MeshStandardMaterial( { map: texture , color: 0xffffff, side:THREE.DoubleSide } );
