@@ -1,6 +1,7 @@
 <template>
     <div class="flex">
-        <el-button @click="getComponent('videoVr')">全景视频</el-button>
+        <el-button @click="getComponent('basicVideo')">基础视频</el-button>
+        <el-button @click="getComponent('vrVideo')">全景视频</el-button>
     </div>
     <component :is="cmpt" />
 </template>
@@ -11,7 +12,7 @@ import { defineAsyncComponent, onMounted, shallowRef } from 'vue';
 
 let cmpt:any = shallowRef()
 
-onMounted(() => getComponent('videoVr'))
+onMounted(() => getComponent('vrVideo'))
 
 function getComponent(name) {
 

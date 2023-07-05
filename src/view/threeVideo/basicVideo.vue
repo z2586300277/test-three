@@ -5,13 +5,17 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls , loadFBX, loaderManager ,getMaterials} from '../three/threeApi';
+import { setControls , loadFBX, loaderManager ,createVideoTexture} from '../three/threeApi';
 import { createGUI } from '../three/GUI'
 
 const threeBox = ref()
+let GUI:any
 onMounted(() => init(threeBox.value))
+onActivated(() => GUI.domElement.hidden = false )
+onDeactivated(() =>GUI.domElement.hidden = true)
+onUnmounted(() => GUI.destroy())
 
-function init(DOM:any) {
+async function init(DOM:any) {
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
@@ -27,10 +31,17 @@ function init(DOM:any) {
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
 
-    const GUI:any = createGUI(THREE,scene,camera,controls)
-    onActivated(() => GUI.domElement.hidden = false )
-    onDeactivated(() =>GUI.domElement.hidden = true)
-    onUnmounted(() => GUI.destroy())
+    const geometry = new THREE.BoxGeometry(10,10,10);
+
+    const texture:any = await createVideoTexture('http://vjs.zencdn.net/v/oceans.mp4')
+    texture.video.muted = true
+    texture.video.play()
+    const material = new THREE.MeshStandardMaterial( { map: texture , color: 0xffffff, side:THREE.DoubleSide } );
+    const mesh = new THREE.Mesh( geometry, material );
+    scene.add( mesh );
+
+    GUI = createGUI(THREE,scene,camera,controls)
+
 
     render()
     function render() {

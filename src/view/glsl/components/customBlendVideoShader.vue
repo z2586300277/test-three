@@ -53,6 +53,7 @@ async function init(DOM: any) {
 
     // 着色器 根据uv 贴合 texture 参数无效  异步解决警告
     texture = await createVideoTexture('http://vjs.zencdn.net/v/oceans.mp4')
+    texture.video.muted = true
     texture.video.play()
 
     const geometry = new THREE.BoxGeometry(100, 100, 100);

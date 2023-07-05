@@ -840,7 +840,6 @@ export async function createVideoTexture(url:any) {
     video.crossOrigin = 'anonymous';
     video.src = url
     video.loop = true
-    video.muted = true
 
     await new Promise((r:any,j:any) => {
         video.onloadeddata = () => {
