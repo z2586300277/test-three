@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
-import { setControls , loadFBX, loaderManager ,createVideoTexture} from '../three/threeApi';
+import { setControls , loadGltf, loaderManager ,createVideoTexture} from '../three/threeApi';
 import { createGUI } from '../three/GUI'
 
 const threeBox = ref()
@@ -40,13 +40,20 @@ async function init(DOM:any) {
     controls.maxDistance = 4000
 
     const geometry = new THREE.SphereGeometry( 5000, 60, 40 );
+    geometry.scale( - 1, 1, 1 );
 
-    const texture:any = await createVideoTexture('pano.mp4')
-    texture.video.muted = true
+    const texture:any = await createVideoTexture('http://guangfu/Video/vr.mp4')
+    // texture.video.muted = true
     texture.video.play()
     const material = new THREE.MeshStandardMaterial( { map: texture , color: 0xffffff, side:THREE.DoubleSide } );
     const mesh = new THREE.Mesh( geometry, material );
     scene.add( mesh );
+
+    
+    loadGltf('http://guangfu/resource/shop.glb', (o:any) => {
+        o.scale.set(10, 10 , 10);
+        scene.add(o)
+    })
 
     GUI = createGUI(THREE,scene,camera,controls)
 
