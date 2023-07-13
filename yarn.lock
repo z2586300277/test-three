@@ -471,6 +471,11 @@
   "resolved" "https://registry.npmmirror.com/memoize-one/-/memoize-one-6.0.0.tgz"
   "version" "6.0.0"
 
+"mgrs@1.0.0":
+  "integrity" "sha512-awNbTOqCxK1DBGjalK3xqWIstBZgN6fxsMSiXLs9/spqWkF2pAhb2rrYCFSsr1/tT7PhcDGjZndG8SWYn0byYA=="
+  "resolved" "http://49.232.115.236:4873/mgrs/-/mgrs-1.0.0.tgz"
+  "version" "1.0.0"
+
 "mime@^1.4.1":
   "integrity" "sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg=="
   "resolved" "https://registry.npmmirror.com/mime/-/mime-1.6.0.tgz"
@@ -548,6 +553,14 @@
     "nanoid" "^3.3.4"
     "picocolors" "^1.0.0"
     "source-map-js" "^1.0.2"
+
+"proj4@^2.9.0":
+  "integrity" "sha512-BoDXEzCVnRJVZoOKA0QHTFtYoE8lUxtX1jST38DJ8U+v1ixY70Kpwi0Llu6YqSWEH2xqu4XMEBNGcgeRIEywoA=="
+  "resolved" "http://49.232.115.236:4873/proj4/-/proj4-2.9.0.tgz"
+  "version" "2.9.0"
+  dependencies:
+    "mgrs" "1.0.0"
+    "wkt-parser" "^1.3.1"
 
 "prr@~1.0.1":
   "integrity" "sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw=="
@@ -670,3 +683,8 @@
     "@vue/runtime-dom" "3.2.47"
     "@vue/server-renderer" "3.2.47"
     "@vue/shared" "3.2.47"
+
+"wkt-parser@^1.3.1":
+  "integrity" "sha512-ZnV3yH8/k58ZPACOXeiHaMuXIiaTk1t0hSUVisbO0t4RjA5wPpUytcxeyiN2h+LZRrmuHIh/1UlrR9e7DHDvTw=="
+  "resolved" "http://49.232.115.236:4873/wkt-parser/-/wkt-parser-1.3.3.tgz"
+  "version" "1.3.3"
