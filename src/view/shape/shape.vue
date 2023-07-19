@@ -41,7 +41,7 @@ async function init(DOM: any) {
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true })
-    renderer.setClearColor(0xffffff)
+    renderer.setClearColor(0x000000)
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
     DOM.appendChild(renderer.domElement)
 
@@ -55,80 +55,23 @@ async function init(DOM: any) {
     onDeactivated(() => GUI.domElement.hidden = true)
     onUnmounted(() => GUI.destroy())
 
-    const groupGeo = new THREE.Group()
+    const heartShape = new THREE.Shape();
 
-    scene.add(groupGeo)
+    heartShape.moveTo( 10, 10 );
+    heartShape.bezierCurveTo( 25, 25, 20, 0, 0, 0 );
+    heartShape.bezierCurveTo( - 30, 0, - 30, 35, - 30, 35 );
+    heartShape.bezierCurveTo( - 30, 55, - 10, 77, 25, 95 );
+    heartShape.bezierCurveTo( 60, 77, 80, 55, 80, 35 );
+    heartShape.bezierCurveTo( 80, 35, 80, 0, 50, 0 );
+    heartShape.bezierCurveTo( 35, 0, 25, 25, 25, 25 );
 
-    const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json').then(r => r.json())
+    const extrudeSettings = { depth: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
 
-    setGeo(res.features)
+    const geometry = new THREE.ExtrudeGeometry( heartShape, extrudeSettings );
 
-    setCenterOrigin(groupGeo)
+    const mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
 
-    // 目标旋转中心不在原点时，设置旋转中心
-    function setGeo(features: any) {
-
-        features.forEach((i: any) => {
-
-            if (i.geometry.type === 'MultiPolygon') {
-
-                i.geometry.coordinates.forEach((j: any) => {
-
-                    j.forEach((z: any) => {
-
-                        setShape(z, null)
-
-                    })
-
-                })
-
-            }
-
-            else if (i.geometry.type === 'Polygon') {   
-
-                i.geometry.coordinates.forEach((j: any) => {
-
-                    setShape(j, [])
-
-                })
-
-            }
-
-        })
-    }
-
-    function setShape(coordinates: any, center: any) {
-
-        const color = 0xffffff * Math.random()
-
-        const curvePoints = coordinates.map((k: any) =>  coordToVector2(k))
-
-        const shape = new THREE.Shape()
-
-        shape.holes.push(new THREE.Path(curvePoints))
-
-        const geometry = new THREE.ExtrudeGeometry(shape, { depth: 20, bevelEnabled: false })
-
-        const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true })
-
-        const mesh = new THREE.Mesh(geometry, material)
-
-        groupGeo.add(mesh)
-
-
-        
-    }
-
-    // 经纬度转换为三维坐标
-    function coordToVector2(coord: any) {
-
-        const [lng, lat] = coord
-
-        const [x , y ] = proj4("EPSG:4326", "EPSG:3857", [lng, lat]);
-        
-        return new THREE.Vector2(x / 10000, y/ 10000)
-    }
-
+    scene.add( mesh );
 
     render()
 

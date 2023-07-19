@@ -11,4 +11,5 @@ export const routers: Array<any> = [
     'ThreeSceneEditor——/ThreeSceneEditor——/ThreeSceneEditor/ThreeSceneEditor——tiles着色器2',
     'threeVideo——/threeVideo——/threeVideo/threeVideo——三维视频',
     'GeoCharts——/GeoCharts——/GeoCharts/GeoCharts——地图',
+    'shape——/shape——/shape/shape——形状',
 ]
