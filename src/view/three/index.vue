@@ -75,7 +75,7 @@ function initScene(DOM:any) {
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.setClearColor( 0xf5f5f6 )
-    renderer.outputEncoding = THREE.sRGBEncoding;
+
     DOM.appendChild(renderer.domElement)
 
     const controls =  setControls(camera, renderer)
@@ -91,6 +91,8 @@ function initScene(DOM:any) {
     scene.add(floor)
 
     const GUI = createGUI(THREE,scene,camera,controls)
+
+    GUI.add(renderer, 'outputColorSpace', [THREE['SRGBColorSpace'],THREE['NoColorSpace'],THREE['LinearSRGBColorSpace']] ).name('色彩空间')
 
     loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
 
