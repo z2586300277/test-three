@@ -4,12 +4,14 @@
         <Nav />
     </div>
     <div class="Layout-Right">
-       <router-view v-slot="{ Component }">
+       <!-- <router-view v-slot="{ Component }">
             <keep-alive>
-                <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath!='/glsl'" />
+                <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath='/keep'" />
             </keep-alive>
-            <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath=='/glsl'"   />
-        </router-view>
+            <component :is="Component" :key="$route.fullPath" v-if="$route.fullPath!=='/keep'"   />
+        </router-view> -->
+
+        <router-view />
     </div>
     
 </div>

@@ -12,4 +12,5 @@ export const routers: Array<any> = [
     'threeVideo——/threeVideo——/threeVideo/threeVideo——三维视频',
     'GeoCharts——/GeoCharts——/GeoCharts/GeoCharts——地图',
     'shape——/shape——/shape/shape——形状',
+    'svg——/svg——/svg/svg——svg',
 ]

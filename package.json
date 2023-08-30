@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gdmp/three-scene-editor": "^0.0.62",
     "@types/three": "^0.154.0",
     "3d-tiles-renderer": "^0.3.16",
     "dat.gui": "^0.7.9",
+    "echarts": "^5.4.3",
     "element-plus": "^2.2.30",
     "pinia": "^2.0.30",
     "proj4": "^2.9.0",
