@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import * as echarts from 'echarts'
-import { ThreeSceneEditor } from '@gdmp/three-scene-editor'
+import { ThreeSceneEditor } from '@gdmp/three-scene-editor-pro'
 import { ref, onMounted } from 'vue'
 const threeBox = ref(null)
 
@@ -44,9 +44,9 @@ onMounted(() => {
                   webglRenderParams: { antialias: true, alpha: true, logarithmicDepthBuffer: true },
                   userPermissions: { autoPlace: true, proxy: false } // 权限
             },
-            sceneParams: JSON.parse(localStorage.getItem('sceneParams') as any),
-            meshListParams: JSON.parse(localStorage.getItem('meshListParams') as any),
-            skyParams: JSON.parse(localStorage.getItem('skyParams') as any),
+            // sceneParams: JSON.parse(localStorage.getItem('sceneParams') as any),
+            // meshListParams: JSON.parse(localStorage.getItem('meshListParams') as any),
+            // skyParams: JSON.parse(localStorage.getItem('skyParams') as any),
             saveEditorCallBack: (sceneParams: any, meshListParams: any) => {
                   localStorage.setItem('sceneParams', JSON.stringify(sceneParams))
                   localStorage.setItem('meshListParams', JSON.stringify(meshListParams))

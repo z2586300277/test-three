@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@gdmp/three-scene-editor": "^0.0.62",
+    "@gdmp/three-scene-editor-pro": "^0.0.23",
     "@types/three": "^0.154.0",
     "3d-tiles-renderer": "^0.3.16",
     "dat.gui": "^0.7.9",
