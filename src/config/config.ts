@@ -1,5 +1,6 @@
 /* name path router title  */
 export const routers: Array<any> = [
+    'R156——/R156——/R156/R156——R156版本',
     'three——/three——/three/index——光伏',
     'pipe——/pipe——/pipe/index——管道绘制',
     'glsl——/glsl——/glsl/index——着色器',

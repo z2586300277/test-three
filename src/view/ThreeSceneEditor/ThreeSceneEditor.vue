@@ -42,7 +42,7 @@ onMounted(() => {
                   fps: 60,
                   pixelRatio: window.devicePixelRatio * 1.5,
                   webglRenderParams: { antialias: true, alpha: true, logarithmicDepthBuffer: true },
-                  userPermissions: { autoPlace: true, proxy: true } // 权限
+                  userPermissions: { autoPlace: true, proxy: false } // 权限
             },
             sceneParams: JSON.parse(localStorage.getItem('sceneParams') as any),
             meshListParams: JSON.parse(localStorage.getItem('meshListParams') as any),

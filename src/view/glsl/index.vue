@@ -25,6 +25,7 @@
             <el-button plain  @click="getComponent('shaderFence')">围栏效果</el-button>
             <el-button plain  @click="getComponent('movingParticles')">粒子</el-button>
             <el-button plain  @click="getComponent('flyLine')">飞线</el-button>
+            <el-button plain  @click="getComponent('lightShaderMaterial')">光照shaderMaterial</el-button>
         </div>
         <div class="cmpt">
             <component :is="AsyncComp" ></component>
