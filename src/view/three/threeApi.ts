@@ -247,14 +247,21 @@ export function setOutLinePass(scene: any, camera: any, renderer: any, threeDom:
 
     // 需要选中的物体对象, 传入需要边界线进行高亮处理的对象
     const outlinePass: any = new OutlinePass(new THREE.Vector2(threeDom.offsetWidth, threeDom.offsetHeight), scene, camera, ModelList);
-    outlinePass.renderToScreen = true;
-    outlinePass.edgeStrength = 2 //粗
-    outlinePass.edgeGlow = 2 //发光
-    outlinePass.edgeThickness = 1.5 //光晕粗
-    outlinePass.pulsePeriod = 1 //闪烁
+    outlinePass.renderToScreen = true
+
+    outlinePass.edgeStrength = 4 //粗
+
+    outlinePass.edgeGlow = 0 //发光
+
+    outlinePass.edgeThickness = 8 //光晕粗
+
+    outlinePass.pulsePeriod = 0 //闪烁
+
     outlinePass.usePatternTexture = false //是否使用贴图
-    outlinePass.visibleEdgeColor.set('#4169E1'); // 设置显示的颜色
-    outlinePass.hiddenEdgeColor.set('#F0F8FF'); // 设置隐藏的颜色
+
+    outlinePass.visibleEdgeColor.set('red'); // 设置显示的颜色
+
+    outlinePass.hiddenEdgeColor.set('red'); // 设置隐藏的颜色
     // 眩光通道outLinePass插入到composer
     Composer.addPass(outlinePass)
 

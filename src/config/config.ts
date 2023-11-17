@@ -15,4 +15,5 @@ export const routers: Array<any> = [
     'GeoCharts——/GeoCharts——/GeoCharts/GeoCharts——地图',
     'shape——/shape——/shape/shape——形状',
     'svg——/svg——/svg/svg——svg',
+    'Layer——/Layer——/Layer/Layer——图层',
 ]

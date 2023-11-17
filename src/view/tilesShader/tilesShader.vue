@@ -22,7 +22,7 @@ function init(DOM:any) {
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
-    renderer.setPixelRatio( window.devicePixelRatio * 2)
+    renderer.setPixelRatio( window.devicePixelRatio)
     renderer.outputEncoding = THREE.sRGBEncoding;
     DOM.appendChild(renderer.domElement)
 
@@ -55,7 +55,9 @@ function init(DOM:any) {
         const intersect = clickIntersect(webGLMosue,camera,scene);
         if(intersect) {
             const { object, face } = intersect
-            // outlinePass.selectedObjects = [object]
+            outlinePass.selectedObjects = [object]
+
+            return
             
             // tiles 
             const tilesBatch = TilesBatchTable(face, object)
