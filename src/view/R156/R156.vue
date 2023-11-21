@@ -50,8 +50,6 @@ function setScene() {
 
     scene.add(light);
 
-    
-
     render()
 
     function render() {
@@ -63,13 +61,6 @@ function setScene() {
     }
 
 }
-
-
-
-
-
-
-
 
 </script>
 

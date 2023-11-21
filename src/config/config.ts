@@ -16,4 +16,5 @@ export const routers: Array<any> = [
     'shape——/shape——/shape/shape——形状',
     'svg——/svg——/svg/svg——svg',
     'Layer——/Layer——/Layer/Layer——图层',
+    'MaskPass——/MaskPass——/MaskPass/MaskPass——遮罩',
 ]
