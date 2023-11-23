@@ -30,9 +30,6 @@ let LayoutHeight = ref(LayoutSize.value * 10 + 'vh')
 let LayoutWidth = ref(LayoutSize.value * 10+'vw')
 let LayoutBack = ref(localStorage.getItem('LayoutBack') || '#123456')
 
-// 初始化加载权限
-const token = localStorage.getItem('token')
-if(token === 'admin') adminStore.$state.power = true
 
 // 键盘控制权限
 document.onkeydown =  (e) =>{
@@ -65,6 +62,10 @@ document.onkeydown =  (e) =>{
     &-Left {
         height: 100%;
         width: 210px;
+        ::-webkit-scrollbar {
+            height: 0px;
+            width: 0px;
+        }
     }
     
     &-Right {

@@ -12,7 +12,7 @@ export const useUserStore = defineStore({
 export const useAdminStore = defineStore({
   id: 'admin',
   state: () =>({
-    power: false
+    power: true
   }),
   getters: {},
   actions: {}
