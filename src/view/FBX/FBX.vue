@@ -40,7 +40,7 @@ function init(DOM:any) {
     
     manager.onProgress = (u:any,i:any,t:any) => (i/t ===1)?loading.value = false : console.log(i/t);
     
-    loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
+    loadFBX('http://guangfu/resource/chuankuayue.FBX', (o:any) => {
            scene.add(o)
            const materials = getMaterials(o)
             materials.map( basicMaterial => basicMaterial.onBeforeCompile =(shader:any) => {

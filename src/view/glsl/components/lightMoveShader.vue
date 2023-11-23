@@ -108,7 +108,7 @@ function init(DOM:any) {
     const mesh = new THREE.Mesh(geometry, material)
     scene.add(mesh)
     
-    loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
+    loadFBX('http://guangfu/resource/aroundBuilding.FBX',  ((object3d:any) => {
 
             scene.add(object3d)
 

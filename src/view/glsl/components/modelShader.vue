@@ -46,7 +46,7 @@ function init(DOM:any) {
     }
 
     
-    loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
+    loadFBX('http://guangfu/resource/aroundBuilding.FBX',  ((object3d:any) => {
 
             scene.add(object3d)
 

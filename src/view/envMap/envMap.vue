@@ -67,17 +67,11 @@ function initScene(DOM:any) {
     })
 
     let materials:any = []
-    loadFBX('http://guangfu/zlcky/zlcky.FBX',  ((object3d:any) => {
+    loadFBX('http://guangfu/resource/chuankuayue.FBX',  ((object3d:any) => {
         scene.add(object3d)
         materials = getMaterials(object3d)
         env('普通单张')
     }))
-
-    // loadGltf('http://guangfu/resource/test/树测试.glb', (o:any) => {
-    //     scene.add(o)
-    //     materials = getMaterials(o)
-    //     env('普通单张')
-    // })
 
     function env(v:any) {
         if(v=== '立体') {

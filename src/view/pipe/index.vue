@@ -214,7 +214,7 @@ function initScene(DOM:any) {
     GUI.add(PIPE_OPTION,'clipSpeed').min(0.0001).max(0.01).name('速度')
 
     // 模型加载
-    loadFBX('http://guangfu/zlcky/zlcky.FBX', (o:any) => {
+    loadFBX('http://guangfu/resource/chuankuayue.FBX', (o:any) => {
         const folder = GUI.addFolder('模型[' + Date.now() + ']');
         ['x', 'y', 'z'].forEach(i => folder.add(o.position, i).min(-500).max(500).name(i + '轴坐标'));
         ['x', 'y', 'z'].forEach(i => folder.add(o.scale, i).min(0).max(10).name(i + '缩放'));
@@ -227,7 +227,7 @@ function initScene(DOM:any) {
         MIXER.Now.play()
     })
 
-    loadGltf('http://guangfu/car.gltf', (o:any) => {
+    loadGltf('http://guangfu/resource/Soldier.glb', (o:any) => {
         pipeHead = o;
         o.scale.set(100, 100 , 100);
         scene.add(o)

@@ -64,7 +64,7 @@ function init(DOM:any) {
     }
 
     
-    loadFBX('http://guangfu/tileset.FBX',  ((object3d:any) => {
+    loadFBX('http://guangfu/resource/tileset.FBX',  ((object3d:any) => {
 
             scene.add(object3d)
 

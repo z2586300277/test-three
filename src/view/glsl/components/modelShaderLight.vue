@@ -56,7 +56,7 @@ function init(DOM:any) {
     const GUI = createGUI(THREE,scene,camera,controls)
     onUnmounted(() => GUI.destroy())
     
-    loadFBX('http://guangfu/zlcky/zlcky.FBX',  ((object3d:any) => {
+    loadFBX('http://guangfu/resource/chuankuayue.FBX',  ((object3d:any) => {
 
             scene.add(object3d)
 

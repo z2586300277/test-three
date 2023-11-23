@@ -87,14 +87,14 @@ function initScene(DOM:any) {
 
     setSceneBackground(scene)
 
-    const floor = floorPlane('http://guangfu/floor.jpg')
+    const floor = floorPlane('http://guangfu/channels/floor.jpg')
     scene.add(floor)
 
     const GUI = createGUI(THREE,scene,camera,controls)
 
     GUI.add(renderer, 'outputColorSpace', [THREE['SRGBColorSpace'],THREE['NoColorSpace'],THREE['LinearSRGBColorSpace']] ).name('色彩空间')
 
-    loadFBX('http://guangfu/tileset.FBX', (object3d:any) => {
+    loadFBX('http://guangfu/resource/tileset.FBX', (object3d:any) => {
 
         object3d.rotation.y = (-180 * Math.PI) / 180;
         object3d.position.set(61.59, -6.1, -58.5);
@@ -107,7 +107,7 @@ function initScene(DOM:any) {
         
     })
 
-     loadFBX('http://guangfu/aroundBuilding.FBX',  ((object3d:any) => {
+     loadFBX('http://guangfu/resource/aroundBuilding.FBX',  ((object3d:any) => {
         
         getMaterials(object3d).forEach(i => {
             i.color.set(0xFFFFFF*Math.random())
@@ -121,7 +121,7 @@ function initScene(DOM:any) {
 
      }))
 
-    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/tileset.json', (object3d:any) => scene.add(object3d),DOM) 
+    const tilesRenderer = loadTiles(camera,renderer, 'http://guangfu/resource/光伏站/tileset.json', (object3d:any) => scene.add(object3d),DOM) 
 
     const { Composer, outlinePass } = setOutLinePass(scene, camera, renderer, DOM)
 
