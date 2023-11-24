@@ -99,6 +99,7 @@ function init(DOM:any) {
     scene.add(box3)
     
     const loader = new FontLoader();
+    let text;
     loader.load( '/font.json', function ( font ) {
 
         const geometry = new TextGeometry( 'Layers', {
@@ -111,7 +112,7 @@ function init(DOM:any) {
             bevelSize: 0,
             bevelSegments: 5
         } )
-        const text = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color:'pink'}))
+        text = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color:'pink'}))
         text.position.set(0,-2,0)
 
         scene.add(text)
@@ -138,12 +139,9 @@ function init(DOM:any) {
     render()
     function render() {
     
-
+    console.log(text)
     composer.render();
  
- 
-    camera.layers.set(0);
-    renderer.render(scene, camera);
         threeBox.value &&  requestAnimationFrame(render)
     }
 
