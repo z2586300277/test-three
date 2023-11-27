@@ -2,12 +2,14 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Layout from '../Layout/Layout.vue'
 import { routers } from '../config/config'
 
+const children:any = Object.values(routers).flat().map(i => getRoute(i))
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '',
     component: Layout,
     redirect: localStorage.getItem('path') || '/glsl',
-    children: routers.map(i => getRoute(i))
+    children 
   },
   
 ]
