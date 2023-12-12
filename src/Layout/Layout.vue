@@ -54,22 +54,18 @@ document.onkeydown =  (e) =>{
 @LayoutHeight: v-bind(LayoutHeight);
 
 .Layout {
-    display: flex;
     width: @LayoutWidth;
     height: @LayoutHeight;
     background-color: v-bind(LayoutBack);
 
-    &-Left {
-        height: 100%;
-        width: 210px;
-        ::-webkit-scrollbar {
+    ::-webkit-scrollbar {
             height: 0px;
             width: 0px;
         }
-    }
+
     
     &-Right {
-        height: 100%;
+        height: 99.9%;
         width: 100%;
     }
 }

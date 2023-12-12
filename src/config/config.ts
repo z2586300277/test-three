@@ -3,6 +3,9 @@ export const routers: any = {
 
     '案例常用':[
         'glsl——/glsl——/glsl/index——着色器',
+        'Camera——/Camera——/Camera/Camera——相机',
+        'CustomPass——/CustomPass——/CustomPass/CustomPass——自定义Pass',
+        'SsrPass——/SsrPass——/SsrPass/SsrPass——ssrPass',
     ],
 
     '案例B':[   
