@@ -47,9 +47,9 @@ import { MaskPass, ClearMaskPass } from 'three/examples/jsm/postprocessing/MaskP
 const threeBox = ref()
 const loading = ref(true)
 const value = ref(0)
-let camera
-let box
-let light 
+let camera:any
+let box:any
+let light:any 
 
 onMounted(() => {
     let r = init(threeBox.value)
@@ -99,7 +99,7 @@ function init(DOM:any) {
     scene.add(box3)
     
     const loader = new FontLoader();
-    let text;
+    let text:any
     loader.load( '/font.json', function ( font ) {
 
         const geometry = new TextGeometry( 'Layers', {

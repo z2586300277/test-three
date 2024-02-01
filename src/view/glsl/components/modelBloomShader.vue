@@ -6,7 +6,6 @@
 import * as THREE from 'three'
 import { ref , onMounted, onUnmounted, onActivated, onDeactivated} from 'vue';
 import { setControls, setStats , getMaterials} from '../../three/threeApi';
-import { createGUI } from '../three/GUI'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';

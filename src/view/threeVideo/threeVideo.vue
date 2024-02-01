@@ -14,7 +14,7 @@ let cmpt:any = shallowRef()
 
 onMounted(() => getComponent('vrVideo'))
 
-function getComponent(name) {
+function getComponent(name:any) {
 
     cmpt.value = defineAsyncComponent(() => import(/* @vite-ignore */'./'+name+'.vue'))
 

@@ -16,12 +16,12 @@ onMounted(() => {
     init(threeBox.value)
 })
 
-let composer;
+let composer:any;
 let ssrPass;
 let controls;
 let camera, scene, renderer;
 
-function init(DOM) {
+function init(DOM:any) {
 
     camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 10000005 );
     camera.position.set( 0.13271600513224902, 0.3489546826045913, 0.43921296427927076 );

@@ -60,7 +60,7 @@ function init(DOM:any) {
             return
             
             // tiles 
-            const tilesBatch = TilesBatchTable(face, object)
+            const tilesBatch:any = TilesBatchTable(face, object)
             if ( object && tilesBatch ){
 
                 // 旧的物体着色器数值重置

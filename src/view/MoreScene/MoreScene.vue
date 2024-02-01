@@ -29,7 +29,7 @@ function change(){
         
 }
 
-function setScene(DOM, i) {
+function setScene(DOM:any, i:any) {
     const { sceneParams, meshListParams, skyParams } = i
     return new ThreeSceneEditor({
         threeBoxRef: DOM.value,

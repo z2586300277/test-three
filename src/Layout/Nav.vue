@@ -39,7 +39,7 @@ const routeList:any = Object.keys(routers).map(i => {
   }
 })
 function relolveRouter(list:any) {
-  return  list.map(i => {
+  return  list.map((i:any) => {
     const r = i.split('——')
     return {
       name: r[0],

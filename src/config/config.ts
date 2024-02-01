@@ -2,6 +2,7 @@
 export const routers: any = {
 
     '案例常用':[
+        'cesium——/cesium——/cesium/cesium——cesium',
         'glsl——/glsl——/glsl/index——着色器',
         'Camera——/Camera——/Camera/Camera——相机',
         'CustomPass——/CustomPass——/CustomPass/CustomPass——自定义Pass',

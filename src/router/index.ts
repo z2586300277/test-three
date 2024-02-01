@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Layout from '../Layout/Layout.vue'
 import { routers } from '../config/config'
 
-const children:any = Object.values(routers).flat().map(i => getRoute(i))
+const children:any = Object.values(routers).flat().map((i:any) => getRoute(i))
 
 const routes: Array<RouteRecordRaw> = [
   {
