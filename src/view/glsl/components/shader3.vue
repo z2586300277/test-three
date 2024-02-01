@@ -5,7 +5,8 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import { ref , onMounted} from 'vue';
-import { setControls, setStats, setFpsClock} from '../../three/threeApi';
+import { setControls, setStats, setFpsClock, loadFBX} from '../../three/threeApi';
+import { Mesh } from 'three';
 
 const threeBox = ref()
 
@@ -16,12 +17,13 @@ function init(DOM:any) {
     const scene = new THREE.Scene()
 
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    camera.position.set(0,0,10)
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
-    renderer.setPixelRatio( window.devicePixelRatio * 2)
-    renderer.setClearColor( 0x000000 )
+    renderer.setPixelRatio( window.devicePixelRatio * 1)
+    renderer.setClearColor( 0xffffff )
     DOM.appendChild(renderer.domElement)
 
     setControls(camera, renderer)
@@ -29,7 +31,11 @@ function init(DOM:any) {
     const axes = new THREE.AxesHelper(5500)
     scene.add(axes)
 
+    const AmbientLight = new THREE.AmbientLight(0xffffff, 6)
+    scene.add(AmbientLight)
+
     let geometry = new THREE.PlaneGeometry( 2, 2 );
+
     const uniforms:any = {
         iResolution: {
             type: 'v2',
@@ -254,8 +260,33 @@ function init(DOM:any) {
         `
     } );
 
-    let mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
+    // 
+    // 
+
+    
+    loadFBX('http://guangfu/resource/aroundBuilding.FBX',  (object:any) => {
+
+        object.traverse((child:any) => {
+            if (child.isMesh) {
+              const mesh = new THREE.Mesh(child.geometry, material)
+
+              scene.add(mesh)
+            }
+        })
+
+    // object.traverse((child:any) => {
+    //     if (child.isMesh) {
+
+    //         let mesh =  new THREE.Mesh( child.geometry, material );
+    //         scene.add( mesh );
+   
+    //     }
+    // })
+
+    scene.add(object)
+
+
+    })
 
     window.onresize = () => uniforms.iResolution.value = new THREE.Vector2(DOM.clientWidth, DOM.clientHeight)
 
