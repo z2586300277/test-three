@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "3d-tiles-renderer": "^0.3.16",
+    "@gdmp/gis-scene-editor": "^0.0.3",
     "@gdmp/three-scene-editor-pro": "^0.0.23",
     "@types/three": "^0.154.0",
     "cesium": "^1.113.0",
