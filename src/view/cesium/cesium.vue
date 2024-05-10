@@ -4,10 +4,10 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import { GisSceneEditor } from '@gdmp/gis-scene-editor'
-onMounted(() => {
-    new GisSceneEditor(document.getElementById('cesiumContainer'))
-})
+// import { GisSceneEditor } from '@gdmp/gis-scene-editor'
+// onMounted(() => {
+//     new GisSceneEditor(document.getElementById('cesiumContainer'))
+// })
 
 </script>
 
