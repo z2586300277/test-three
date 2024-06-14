@@ -198,7 +198,7 @@ export const loadFBX = ( url:string = 'model/西宿舍楼/xisushelou02.FBX', cal
 
         callback(object3d)
 
-    },(xhr) =>{/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ) */})
+    },(xhr:any) =>{/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ) */})
 
     return loader
 }
@@ -216,10 +216,10 @@ export const loadGltf = (url:string = '', callback: any = () => {}) => {
         (gltf:any) =>  callback(gltf.scene),
 
         //加载
-        (xhr) =>  {/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ); */},
+        (xhr:any) =>  {/* console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' ); */},
 
         //加载失败
-        (e) => {}
+        (e:any) => {}
     )
 }
 
@@ -702,7 +702,7 @@ export function loadHDRTexture(url:any, renderer:any) {
 
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
-    const texture:any = new RGBELoader().load( url, (t) => {
+    const texture:any = new RGBELoader().load( url, (t:any) => {
         const map = pmremGenerator.fromEquirectangular(t).texture;
         pmremGenerator.dispose();
         return map
@@ -719,7 +719,7 @@ export function loadEXRTexture(url:any, renderer:any) {
 
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
-    const texture:any = new EXRLoader().load( url, (t) => {
+    const texture:any = new EXRLoader().load( url, (t:any) => {
 
         t.mapping = THREE.EquirectangularReflectionMapping;
 
@@ -1010,7 +1010,7 @@ export function transFormControls(renderer:any,camera:any, orbitControl:any, ren
 
     control.addEventListener( 'change', render );
 
-    control.addEventListener( 'dragging-changed', function ( event ) {
+    control.addEventListener( 'dragging-changed', function ( event:any ) {
 
         orbitControl.enabled = ! event.value;
 

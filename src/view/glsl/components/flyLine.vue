@@ -52,7 +52,6 @@ function init(DOM: any) {
 
     // 创建飞线的材质
     var material = new LineMaterial({
-        vertexColors: THREE.VertexColors, // 使用顶点颜色
         linewidth: 20 // 设置线宽度
     });
 

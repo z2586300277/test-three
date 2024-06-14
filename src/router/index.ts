@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import Layout from '../Layout/Layout.vue'
 import { routers } from '../config/config'
 
@@ -16,10 +16,13 @@ const routes: Array<RouteRecordRaw> = [
 
 function getRoute(str: string){
   const [ name, path, routerStr, title ]: Array<string> =  str.split('——')
+
+  const url = "../view"+routerStr+".vue"
+
   return {
     name,
     path,
-    component: () => import(/* @vite-ignore */"../view"+routerStr+".vue"),
+    component: () => import(/* @vite-ignore */(import.meta as any).resolve(url)),
     meta: {
       title
     }
@@ -27,7 +30,7 @@ function getRoute(str: string){
 }
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 
