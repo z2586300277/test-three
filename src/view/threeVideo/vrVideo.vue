@@ -19,6 +19,7 @@ async function init(DOM:any) {
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    camera.position.set(0, 0, 100)
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
@@ -43,7 +44,7 @@ async function init(DOM:any) {
     geometry.scale( - 1, 1, 1 );
 
     const texture:any = await createVideoTexture('http://guangfu/Video/vr.mp4')
-    // texture.video.muted = true
+    texture.video.muted = true
     texture.video.play()
     const material = new THREE.MeshStandardMaterial( { map: texture , color: 0xffffff, side:THREE.DoubleSide } );
     const mesh = new THREE.Mesh( geometry, material );
@@ -69,7 +70,7 @@ async function init(DOM:any) {
 
 <style lang="less" scoped>
 .threeBox {
-    width: 100%;
-    height: 100%;
+    width: 800px;
+    height: 600px;
 }
 </style>

@@ -13,6 +13,7 @@ import * as THREE from 'three'
 import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue';
 import { setControls, asyncCreateTexture, createTexture, loadFBX, loaderManager, getMaterials } from '../three/threeApi';
 import { createGUI } from '../three/GUI'
+import { ca } from 'element-plus/es/locale';
 
 let shader: any = null
 let mesh: any = null
@@ -42,25 +43,44 @@ async function changeFrag() {
 
     // 使用 shader 库中的phong材质 进行修改
     shader = {
+
         uniforms: THREE.UniformsUtils.merge([
+
             THREE.ShaderLib['phong'].uniforms,
+
             {
+
                 u_resolution: {
+
                     type: 'v2',
+
                     value: new THREE.Vector2(threeBox.value.clientWidth, threeBox.value.clientHeight)
+
                 },
+
                 u_time: {
+
                     type: 'f',
+
                     value: 0.0
+
                 },
-                channel: { value: await asyncCreateTexture(channel.value) },
+
+
                 u_mouse: {
+
                     type: 'v2',
+
                     value: new THREE.Vector2(0, 0)
+
                 }
+
             }
+
         ]),
+
         side: THREE.DoubleSide,
+
         vertexShader: `
             varying vec2 vUv;
             void main() {
@@ -69,10 +89,13 @@ async function changeFrag() {
                 gl_Position = projectionMatrix * mvPosition;
             }
         `,
+
         fragmentShader: await fetch(frag.value).then(res => res.text()),
+
     }
 
     shader.fragmentShader = shader.fragmentShader.replace(/gl_FragCoord/, 'vUv * gl_FragCoord')
+
     shader.fragmentShader = shader.fragmentShader.replace(/uniform float u_time;/, `
         uniform float u_time;
         varying vec2 vUv;

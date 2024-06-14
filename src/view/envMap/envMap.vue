@@ -34,7 +34,7 @@ function initScene(DOM:any) {
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
     renderer.setSize(DOM.clientWidth, DOM.clientHeight)
-    renderer.setPixelRatio( window.devicePixelRatio * 2)
+    renderer.setPixelRatio( window.devicePixelRatio * 1)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.setClearColor( 0xf5f5f6 )

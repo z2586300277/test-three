@@ -37,8 +37,8 @@ document.onkeydown =  (e) =>{
     else if(e.code === 'Backquote' &&  adminStore.$state.power)  minShow.value = !minShow.value
     else if(adminStore.$state.power && e.shiftKey &&( e.code === 'Minus' || e.code === 'Equal') )  {
         e.code == 'Minus' ? LayoutSize.value-- : LayoutSize.value++
-        LayoutWidth.value =   LayoutSize.value * 10 + 'vw'
-        LayoutHeight.value =   LayoutSize.value * 10 + 'vh'
+        LayoutWidth.value =   (LayoutSize.value || 10) * 10 + 'vw'
+        LayoutHeight.value =   (LayoutSize.value || 10) * 10 + 'vh'
         localStorage.setItem('LayoutSize', LayoutSize.value)
     }
     else if(adminStore.$state.power && e.shiftKey && e.code == 'Digit1') {
@@ -54,8 +54,8 @@ document.onkeydown =  (e) =>{
 @LayoutHeight: v-bind(LayoutHeight);
 
 .Layout {
-    width: @LayoutWidth;
-    height: @LayoutHeight;
+    width: 100vw;
+    height: 100vh;
     background-color: v-bind(LayoutBack);
 
     ::-webkit-scrollbar {

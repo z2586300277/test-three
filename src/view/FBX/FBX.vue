@@ -17,6 +17,7 @@ function init(DOM:any) {
     const scene = new THREE.Scene()
 
     const camera = new THREE.PerspectiveCamera(50,DOM.clientWidth / DOM.clientHeight, 0.1, 100000)
+    camera.position.set(0, 0, 1000)
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha: true, logarithmicDepthBuffer: true  })
@@ -52,7 +53,7 @@ function init(DOM:any) {
     render()
     function render() {
         renderer.render(scene,camera)
-        threeBox.value &&  requestAnimationFrame(render)
+        requestAnimationFrame(render)
     }
 }
 </script>

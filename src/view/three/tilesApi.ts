@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { TilesRenderer } from '3d-tiles-renderer';
+import { TilesRenderer } from '3d-tiles-renderer'
 
 
 let box = new THREE.Box3();

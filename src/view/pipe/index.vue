@@ -227,7 +227,7 @@ function initScene(DOM:any) {
         MIXER.Now.play()
     })
 
-    loadGltf('http://guangfu/resource/Soldier.glb', (o:any) => {
+    loadGltf('http://guangfu/resource/car.glb', (o:any) => {
         pipeHead = o;
         o.scale.set(100, 100 , 100);
         scene.add(o)

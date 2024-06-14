@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
 import * as echarts from 'echarts'
-import { ThreeSceneEditor } from '@gdmp/three-scene-editor-pro'
+import { ThreeEditor } from 'three-editor-cores'
 import { ref, onMounted } from 'vue'
 const threeBox = ref(null)
 
@@ -32,34 +32,18 @@ const dateRef = ref()
 const charts = ref()
 let myChart: any = null
 let options: any
-let threeSceneEditor: any = null
+let threeEditor: any = null
 
 
 onMounted(() => {
-      const option: any = {
-            threeBoxRef: threeBox.value,
-            rendererParams: {
-                  fps: 60,
-                  pixelRatio: window.devicePixelRatio * 1.5,
-                  webglRenderParams: { antialias: true, alpha: true, logarithmicDepthBuffer: true },
-                  userPermissions: { autoPlace: true, proxy: false } // 权限
-            },
-            // sceneParams: JSON.parse(localStorage.getItem('sceneParams') as any),
-            // meshListParams: JSON.parse(localStorage.getItem('meshListParams') as any),
-            // skyParams: JSON.parse(localStorage.getItem('skyParams') as any),
-            saveEditorCallBack: (sceneParams: any, meshListParams: any) => {
-                  localStorage.setItem('sceneParams', JSON.stringify(sceneParams))
-                  localStorage.setItem('meshListParams', JSON.stringify(meshListParams))
-            },
-            clickEventCallback: () => { }
-      }
-      threeSceneEditor = new (ThreeSceneEditor as any)(option)
 
-      threeSceneEditor.setCss3dDOM(plane.value, new THREE.Vector3(0, 0, 0))
+      threeEditor = new (ThreeEditor as any)(threeBox.value)
 
-      const mesh = threeSceneEditor.setCss3dDOM(dateRef.value, new THREE.Vector3(0, 100, -100))
+      threeEditor.setCss3dDOM(plane.value, new THREE.Vector3(0, 0, 0)).scale.set(0.01, 0.01, 0.01)
 
-      mesh.scale.set(0.1, 0.1, 0.1)
+      const mesh = threeEditor.setCss3dDOM(dateRef.value, new THREE.Vector3(0, 100, -100))
+
+      mesh.scale.set(0.01, 0.01, 0.01)
 
       myChart = echarts.init(charts.value);
 
@@ -116,8 +100,8 @@ function click() {
 
 <style lang="less" scoped>
 .threeBox {
-      width: 100%;
-      height: 100%;
+      width: 1200px;
+      height: 700px;
 }
 
 .test,

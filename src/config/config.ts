@@ -2,21 +2,17 @@
 export const routers: any = {
 
     '案例常用':[
-        'cesium——/cesium——/cesium/cesium——cesium',
         'glsl——/glsl——/glsl/index——着色器',
-        'Camera——/Camera——/Camera/Camera——相机',
         'CustomPass——/CustomPass——/CustomPass/CustomPass——自定义Pass',
         'SsrPass——/SsrPass——/SsrPass/SsrPass——ssrPass',
     ],
 
     '案例B':[   
         'glslLoader——/glslLoader——/glslLoader/glslLoader——着色器解析器',
-        'ThreeSceneEditor——/ThreeSceneEditor——/ThreeSceneEditor/ThreeSceneEditor——css3d',
-        'MoreScene——/MoreScene——/MoreScene/MoreScene——多场景',
+        'ThreeEditor——/ThreeEditor——/ThreeEditor/ThreeEditor——css3d',
         'threeVideo——/threeVideo——/threeVideo/threeVideo——三维视频',
         'GeoCharts——/GeoCharts——/GeoCharts/GeoCharts——地图',
         'shape——/shape——/shape/shape——形状',
-        'svg——/svg——/svg/svg——svg',
         'Layer——/Layer——/Layer/Layer——图层',
     ],
 
@@ -26,7 +22,6 @@ export const routers: any = {
         'pipe——/pipe——/pipe/index——管道绘制',
         'envMap——/envMap——/envMap/envMap——环境贴图',
         't1ilesShader——/tilesShader——/tilesShader/tilesShader——tiles着色器',
-        'R156——/R156——/R156/R156——R156版本',
     ],
 
 }
